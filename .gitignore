@@ -1,0 +1,7 @@
+client/mocTrash/objectFiles/*
+client/mocTrash/sources/*
+!client/mocTrash/objectFiles/gitJeRetarded
+!client/mocTrash/sources/gitJeRetarded
+client/.qmake.stash
+client/Projekt
+client/Makefile
