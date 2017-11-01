@@ -15,7 +15,7 @@ def login(username, password):
 	cur,con = mysqlService.connect()
 	cur.execute("SELECT * FROM user WHERE username = '{}' AND password = '{}'".format(username, password))
 	#print("SELECT * FROM user WHERE username = '{}' AND password = '{}'".format(username, password))
-	rows = db[0].fetchall()
+	rows = cur.fetchall()
 	if len(rows) == 0:
 		return 0
 	else:
