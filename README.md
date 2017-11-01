@@ -13,9 +13,10 @@ Communication JSON format:
 - to server:
   - {agenda="register", username="jan", password="geslo123"}
 - from server:  
-  -{agenda="register", status:"ok"}
-  -{agenda="register", status:"usernameTaken"}
-**"getLobbies"**:  
+  - {agenda="register", status:"ok"}
+  - {agenda="register", status:"usernameTaken"}  
+  
+**"getLobbies"**:
 - server:  
   - {agenda="getLobbies"}
 - from server:	
