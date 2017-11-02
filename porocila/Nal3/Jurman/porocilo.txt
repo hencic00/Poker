@@ -1,0 +1,10 @@
+Opravljene naloge v 3. tednu:
+- Login & register backend
+- Console client za testiranje komunikacije
+- Prenos na komunikacijo z JSON stringi
+- mysql-connector python module
+
+Naloge za naslednji teden:
+- Povezava z aplikacijo
+- Lobby backend
+- Threaded lobby in pripadujoča komunikacija
