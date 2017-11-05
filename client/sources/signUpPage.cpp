@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QRect>
 #include <iostream>
+#include <QSvgWidget>
 
 
 #include "signUpPage.h"
@@ -26,6 +27,13 @@ void signUpPage::initUI()
 
 	QFont font;
 	font.setPixelSize(40);
+
+	QHBoxLayout * hbox2  = new QHBoxLayout();
+	QSvgWidget* banner = new QSvgWidget("./images/signUp.svg");
+	banner->setFixedSize(rec.width() * 0.35, rec.height()*0.13);
+	hbox2->addStretch(1);
+	hbox2->addWidget(banner);
+	hbox2->addStretch(1);
 
 
 	QLineEdit* email = new QLineEdit();
@@ -61,7 +69,7 @@ void signUpPage::initUI()
 	backButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	connect(backButton, &QPushButton::clicked, this, &signUpPage::backButtonClicked);
 
-	QPushButton* signUpButton = new QPushButton("  Sign up  ");
+	QPushButton* signUpButton = new QPushButton("  Apply  ");
 	signUpButton->setFont(font);
 	signUpButton->setIcon(QIcon("./images/confirm.svg"));
 	signUpButton->setStyleSheet("margin-top: 20px; margin-left: 10px;");
@@ -78,18 +86,24 @@ void signUpPage::initUI()
 	QVBoxLayout *vbox = new QVBoxLayout();
 	vbox->setSpacing(0);
 
-	vbox->addStretch(1);
+	
 	vbox->addWidget(email);
 	vbox->addWidget(password);
 	vbox->addWidget(passwordRe);
 	vbox->addLayout(hbox);
-	vbox->addStretch(1);
 
 	hbox1->addStretch(1);
 	hbox1->addLayout(vbox);
 	hbox1->addStretch(1);
 
-	this->setLayout(hbox1);
+	QVBoxLayout *vbox4 = new QVBoxLayout();
+	vbox4->addStretch(6);
+	vbox4->addLayout(hbox2);
+	vbox4->addStretch(2);
+	vbox4->addLayout(hbox1);
+	vbox4->addStretch(6);
+
+	this->setLayout(vbox4);
 }
 
 void signUpPage::backButtonClicked()

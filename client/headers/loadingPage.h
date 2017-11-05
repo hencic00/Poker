@@ -12,4 +12,7 @@ class loadingPage : public QFrame
 
 	private:
 		void initUI();
+
+	signals:
+		void navigateTo(char* title, int index);
 };

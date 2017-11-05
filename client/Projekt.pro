@@ -7,8 +7,10 @@ TARGET = Projekt
 INCLUDEPATH += .
 
 # Input
-HEADERS += ./headers/PokerWindow.h ./headers/LoginPage.h ./headers/SignUpPage.h ./headers/LoadingPage.h
-SOURCES += main.cpp ./sources/PokerWindow.cpp ./sources/LoginPage.cpp ./sources/SignUpPage.cpp ./sources/LoadingPage.cpp
+HEADERS += ./headers/pokerWindow.h ./headers/loginPage.h ./headers/signUpPage.h ./headers/loadingPage.h
+HEADERS += ./headers/lobbyPage.h
+SOURCES += main.cpp ./sources/pokerWindow.cpp ./sources/loginPage.cpp ./sources/signUpPage.cpp ./sources/loadingPage.cpp
+SOURCES += ./sources/lobbyPage.cpp
 
 QT += widgets 
 QT += svg

@@ -1,0 +1,10 @@
+Opravljene naloge v 3. tednu:
+	- Izdelava sistema menjavanja med page-i.
+	- Izdelava login strani
+	- Izdelava sign up strani
+	- Izdelava loadin strani
+
+Naloge za naslednji teden:
+	- Izdelava lobby strani
+	- Povezava s strežnikom
+	- Izdelava osnovnega izgleda poker mize, kart ter žetonov
