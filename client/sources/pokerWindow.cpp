@@ -32,6 +32,7 @@ void pokerWindow::initUI()
 	connect(signUp, &signUpPage::navigateTo, this, &pokerWindow::navigationRequestReceived);
 
 	loadingPage* loading = new loadingPage();
+	connect(loading, &loadingPage::navigateTo, this, &pokerWindow::navigationRequestReceived);
 
 
 	stack = new QStackedWidget();
@@ -63,5 +64,4 @@ void pokerWindow::navigationRequestReceived(char* title, int index)
 {
 	stack->setCurrentIndex(index);
 	setWindowTitle(title);
-	
 }

@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QMovie>
 #include <QtSvg>
+#include <iostream>
 
 #include "loadingPage.h"
 
