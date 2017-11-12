@@ -30,6 +30,8 @@ def register(username, password):
 	cur,con = mysqlService.connect()
 	cur.execute("INSERT INTO user (username, password) VALUES ('{}', '{}')".format(username, password))
 	#print("INSERT INTO user (username, password) VALUES ('{}', '{}')".format(username, password))
-	con.commit()	
+	con.commit()
+	lastInsertId = cur.lastrowid
 	cur.close()
 	con.close()
+	return lastInsertId
