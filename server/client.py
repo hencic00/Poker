@@ -9,7 +9,7 @@ data = " ".join(sys.argv[1:])
 # try:
 
 while True:
-	userInput = raw_input("\nActions:\nLogin\t\t(1)\nRegister\t(2)\nGet Lobbies\t(3)\n~>")
+	userInput = raw_input("\nActions:\nLogin\t\t(1)\nRegister\t(2)\nCreate Lobby\t(3)\nGet Lobbies\t(4)\n~>")
 	if userInput == "1":
 		usernameInput = raw_input("Username: ")
 		passwordInput = raw_input("Password: ")
@@ -25,6 +25,9 @@ while True:
 		data['username'] = usernameInput
 		data['password'] = passwordInput
 	elif userInput == "3":
+		data = {}
+		data['agenda'] = "createLobby"
+	elif userInput == "4":
 		data = {}
 		data['agenda'] = "getLobbies"
 	else:

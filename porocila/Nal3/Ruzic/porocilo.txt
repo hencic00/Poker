@@ -1,0 +1,8 @@
+Opravljene naloge v 3. tednu:
+	- Izdelava cardBack-a (Vectr)
+	- Izdelava logo aplikacije (Blender)
+	
+
+Naloge za naslednji teden:
+	- Izdelava uvodne animacije pri zagonu aplikacije (Blender) . 
+	

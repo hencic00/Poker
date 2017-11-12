@@ -19,7 +19,7 @@ def login(username, password):
 	if len(rows) == 0:
 		return 0
 	else:
-		return 1
+		return rows[0][0] #cant access by key, god help us all
 	cur.close()
 	con.close()
 
