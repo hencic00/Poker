@@ -1,0 +1,17 @@
+Opravljene naloge v 3. tednu:
+- login & register uporablja UUID4 za session
+- vsaki request je sedaj obdelan v svojem threadu
+- register te avtomatsko loga in
+- authenticated check
+- client updates
+- create lobby
+- join lobby
+- get lobbies (and data)
+- v lobbiju je persisent socket connection
+- SocketServer problems (timeout, finish, bad file descriptor) -> migracija iz SocketServer na raw socket
+
+Naloge za naslednji teden:
+- prehod iz Lobby -> Game
+- potrebna komunikacija med threadi
+- cleanup kode
+- začetki povezave z aplikacijo ali logiko
