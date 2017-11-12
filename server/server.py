@@ -1,4 +1,4 @@
-import SocketServer
+import socket
 import User
 import lobby
 import json
@@ -6,88 +6,119 @@ from threading import Thread
 import uuid
 
 
-class MyTCPHandler(SocketServer.BaseRequestHandler):
-	"""
-	The request handler class for our server.
-
-	It is instantiated once per connection to the server, and must
-	override the handle() method to implement communication to the
-	client.
-	"""
+class ThreadedServer(object):
 	global users
 	users = dict() #LUT {uuid: SQL id}
-	lobbies = []
+	lobbies = dict() #LUT {uuid: {id, name, users}}
 
-	def handle(self):
-		# self.request is the TCP socket connected to the client <---- pass this to new thread?
-		self.data = self.request.recv(1024)
+	#TODO MUTEX!
 
-		print("{} wrote:".format(self.client_address[0]))
-		self.reqData = self.data.decode("utf-8");
-		self.reqData = json.loads(self.reqData)
-		self.responseData = {}
-		self.responseData['agenda'] = self.reqData['agenda']
+	def __init__(self, host, port):
+		self.host = host
+		self.port = port
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.sock.bind((self.host, self.port))
+
+	def listen(self):
+		self.sock.listen(50) #max con size?
+		while True:
+			client, address = self.sock.accept()
+			client.settimeout(None)
+			clientHandlerThead = Thread(target = self.handle,args = (client,address))
+			clientHandlerThead.daemon = True
+			clientHandlerThead.start()
+
+	def listenToClient(self, client, address): #TODO delete me later
+		size = 1024
+		while True:
+			try:
+				data = client.recv(size)
+				if data:
+					# Set the response to echo back the recieved data 
+					response = data
+					client.send(response)
+				else:
+					raise error('Client disconnected')
+			except:
+				client.close()
+				return False
+
+	def handle(self, client, address):
+		packetSize = 1024
+		closeSocket = 1
+		data = client.recv(packetSize)
+		print("{} sent request.".format(address))
+		reqData = data.decode("utf-8");
+		reqData = json.loads(reqData)
+		responseData = {}
+		responseData['agenda'] = reqData['agenda']
 		#login user
-		if self.reqData['agenda'] == "login":
-			print("Login attempt: {}\t{}".format(self.reqData['username'],self.reqData['password']))
-			self.user = User.getUser(self.reqData['username'])
-			if self.user == 0:
-				self.responseData['status'] = "nonExistentUser"
+		if reqData['agenda'] == "login":
+			print("Login attempt: {}\t{}".format(reqData['username'], reqData['password']))
+			user = User.getUser(reqData['username'])
+			if user == 0:
+				responseData['status'] = "nonExistentUser"
 			else:
-				self.user = User.login(self.reqData['username'], self.reqData['password'])
-				if self.user == 0:
-					self.responseData['status'] = "wrongPassword"
+				user = User.login(reqData['username'], reqData['password'])
+				if user == 0:
+					responseData['status'] = "wrongPassword"
 				else:
 					#am i allready logged in?
-					if self.user in users.values():
-						self.userHash = next((k for k, v in users.items() if v == self.user), None)
-						self.responseData['status'] = "allreadyLoggedIn"
-						self.responseData['data'] = self.userHash
+					if user in users.values():
+						userHash = next((k for k, v in users.items() if v == user), None)
+						responseData['status'] = "allreadyLoggedIn"
+						responseData['data'] = userHash
 					else:
-						self.responseData['status'] = "ok"
-						users[str(uuid.uuid4())] = self.user
+						responseData['status'] = "ok"
+						responseData['userId'] = str(uuid.uuid4())
+						users[responseData['userId']] = user
 					print users
 		#register user
-		elif self.reqData['agenda'] == "register":
-			print("Register attempt: {}\t{}".format(self.reqData['username'],self.reqData['password']))
-			self.registerResult = User.register(self.reqData['username'],self.reqData['password'])
-			if self.registerResult == 0:
-				self.responseData['data'] = "usernameTaken"
+		elif reqData['agenda'] == "register":
+			print("Register attempt: {}\t{}".format(reqData['username'], reqData['password']))
+			user = User.register(reqData['username'],reqData['password'])
+			if user == 0:
+				responseData['status'] = "usernameTaken"
 			else:
-				self.responseData['status'] = "ok" #TODO user UUID se poslje ob vsakem requestu
-		#get lobbies
-		elif self.reqData['agenda'] == "getLobbies":
-			self.responseData['data'] = self.lobbies
-		#create a lobby
-		elif self.reqData['agenda'] == "createLobby":
-			#create new thread
-			self.responseData['data'] = "ok"		#TODO check if user is logged in
-			thread = Thread(target = lobby.createLobby, args = (self.request, self.lobbies, 1))
-			thread.start()
-		#join a lobby
-		elif self.reqData['agenda'] == "joinLobby":
-			self.responseData['data'] = "join lobby request"
-		#get profile data
-		elif self.reqData['agenda'] == "profileData":
-			self.responseData['data'] = "profileData request"
+				responseData['status'] = "ok"
+				responseData['userId'] = str(uuid.uuid4())
+				users[responseData['userId']] = user
+		#is user logged in legitely?
+		elif reqData['userId'] not in users:
+			responseData['status'] = "unauthenticated"
 		else:
-			print("Unknown request command {}".format(agenda))
-			self.responseData['status'] = "badRequest"
+			#get lobbies
+			if reqData['agenda'] == "getLobbies":
+				responseData['data'] = lobby.getAllLobbiesForFront(self.lobbies)
+				responseData['status'] = "ok"
+			#create a lobby
+			elif reqData['agenda'] == "createLobby":
+				responseData['data'] = "ok"
+				createdLobbyId =lobby.createLobby(self.lobbies)
+				lobby.joinLobby(self.lobbies, createdLobbyId, client, reqData, users[reqData['userId']])
 
-		self.request.sendall(json.dumps(self.responseData).encode('utf-8'))
+			#join a lobby
+			elif reqData['agenda'] == "joinLobby":
+				#TODO check if lobby exists
+				lobby.joinLobby(self.lobbies, reqData['lobbyId'], client, reqData, users[reqData['userId']])
+			#get profile data
+			elif reqData['agenda'] == "profileData":
+				responseData['data'] = "profileData request"
+			elif reqData['agenda'] == "logout":
+				if reqData['userId'] in users:
+					del users[reqData['userId']]
+					responseData['status'] = "ok"
+				else:
+					responseData['status'] = "notLoggedIn"
+			else:
+				print("Unknown request command {}".format(agenda))
+				responseData['status'] = "badRequest"
 
-class MyTCPServer(SocketServer.TCPServer):
-	def server_bind(self):
-		import socket
-		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.socket.bind(self.server_address)
+		client.sendall(json.dumps(responseData).encode('utf-8'))
+		client.close()
 
 if __name__ == "__main__":
 	HOST, PORT = '', 9999
 
-	# Create the server, binding to localhost on port 9999
-	#server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
-	server = MyTCPServer((HOST,PORT), MyTCPHandler)
-	# Activate the server; this will keep running until you
-	# interrupt the program with Ctrl-C
-	server.serve_forever()
+	ThreadedServer(HOST, PORT).listen()
