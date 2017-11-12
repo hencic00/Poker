@@ -8,10 +8,10 @@ INCLUDEPATH += .
 
 # Input
 HEADERS += ./headers/pokerWindow.h ./headers/loginPage.h ./headers/signUpPage.h ./headers/loadingPage.h
-HEADERS += ./headers/lobbyPage.h ./headers/playPage.h
+HEADERS += ./headers/lobbyPage.h ./headers/playPage.h ./headers/renderWidget.h
 
 SOURCES += main.cpp ./sources/pokerWindow.cpp ./sources/loginPage.cpp ./sources/signUpPage.cpp ./sources/loadingPage.cpp
-SOURCES += ./sources/lobbyPage.cpp ./sources/playPage.cpp
+SOURCES += ./sources/lobbyPage.cpp ./sources/playPage.cpp ./sources/renderWidget.cpp
 
 QT += widgets 
 QT += svg

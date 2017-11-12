@@ -2,6 +2,8 @@
 
 #include <QFrame>
 #include <QRect>
+#include "renderWidget.h"
+#include <string>
 
 class playPage : public QFrame
 {
@@ -15,6 +17,11 @@ class playPage : public QFrame
 		void initUI();
 
 		// std::string nekaj;
+		renderWidget* render;
+		std::map<std::string, QString> card;
+
+		QString tableCards[5];
+		int nekaj;
 		
 	
 	public slots:
