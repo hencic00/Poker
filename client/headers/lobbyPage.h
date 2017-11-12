@@ -15,4 +15,10 @@ class lobbyPage : public QFrame
 
 	private:
 		void initUI();
+
+	public slots:
+		void createButtonClicked();
+
+	signals:
+		void navigateTo(char* title, int index);
 };

@@ -3,6 +3,8 @@
 #include <QFrame>
 #include <QStyle>
 #include <QStackedWidget>
+#include <QTimer>
+
 #include <string>
 
 class pokerWindow : public QFrame
@@ -18,7 +20,9 @@ class pokerWindow : public QFrame
 		void setWindowGeometry();
 
 		QStackedWidget* stack;
+		QTimer *timer;
 
 	public slots:
 		void navigationRequestReceived(char* title, int index);
+		void nekaj();
 };

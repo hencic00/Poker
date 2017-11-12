@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="363mm"
+   height="168mm"
+   viewBox="0 0 363 168"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.1 r15371"
+   sodipodi:docname="pokerTable.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="806.61888"
+     inkscape:cy="303.35748"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="3840"
+     inkscape:window-height="1974"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-129)">
+    <ellipse
+       style="fill:#5a6a51;fill-opacity:1;stroke-width:0.26676378"
+       id="path4511-5"
+       cx="73.027245"
+       cy="213.47212"
+       rx="66.45295"
+       ry="78.480507" />
+    <rect
+       style="fill:#5a6a51;fill-opacity:1;stroke-width:0.3055883"
+       id="rect4528-3"
+       width="217.41861"
+       height="157.06165"
+       x="71.259392"
+       y="135.0358" />
+    <ellipse
+       style="fill:#5a6a51;fill-opacity:1;stroke-width:0.26682416"
+       id="path4511-6-5"
+       cx="291.04489"
+       cy="213.38655"
+       rx="66.45295"
+       ry="78.51606" />
+    <ellipse
+       style="fill:#819277;fill-opacity:1;stroke-width:0.26434964"
+       id="path4511-6"
+       cx="290.82339"
+       cy="211.49883"
+       rx="66.821312"
+       ry="76.641647" />
+    <rect
+       style="fill:#819277;fill-opacity:1;stroke-width:0.30265579"
+       id="rect4528"
+       width="218.62381"
+       height="153.2124"
+       x="70.043358"
+       y="134.90358" />
+    <ellipse
+       style="fill:#819277;fill-opacity:1;stroke-width:0.26436239"
+       id="path4511"
+       cx="73.036751"
+       cy="211.52802"
+       rx="66.821312"
+       ry="76.649055" />
+    <ellipse
+       cy="211.88542"
+       cx="286.24417"
+       id="circle4534-6"
+       style="fill:#5a6a51;fill-opacity:1;stroke-width:0.2451245"
+       rx="64.109711"
+       ry="68.6866" />
+    <rect
+       y="143.17683"
+       x="74.466171"
+       height="137.48392"
+       width="209.64601"
+       id="rect4536-7"
+       style="fill:#5a6b50;fill-opacity:1;stroke-width:0.28075171" />
+    <ellipse
+       cy="211.93431"
+       cx="76.927719"
+       id="circle4532-3"
+       style="fill:#5a6a51;fill-opacity:1;stroke-width:0.24354918"
+       rx="63.226841"
+       ry="68.753418" />
+    <ellipse
+       cy="213.69952"
+       cx="76.927734"
+       id="circle4532"
+       style="fill:#7ea069;fill-opacity:1;stroke-width:0.24050263"
+       rx="63.226841"
+       ry="67.044106" />
+    <ellipse
+       cy="213.75584"
+       cx="286.51154"
+       id="circle4534"
+       style="fill:#7ea069;fill-opacity:1;stroke-width:0.2422682"
+       rx="64.376976"
+       ry="66.816628" />
+    <rect
+       y="146.78433"
+       x="74.466187"
+       height="133.87643"
+       width="209.64598"
+       id="rect4536"
+       style="fill:#7ea069;fill-opacity:1;stroke-width:0.27704382" />
+  </g>
+</svg>
