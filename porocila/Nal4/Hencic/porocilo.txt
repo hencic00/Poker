@@ -1,0 +1,7 @@
+Opravljene naloge v 4. tednu:
+	- Izdelava lobby strani
+	- izdelava izgleda poker mize ter kart
+
+Naloge za naslednji teden:
+	- Končat prikaz igre
+	- Povezava s strežnikom
