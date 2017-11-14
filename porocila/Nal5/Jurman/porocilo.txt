@@ -1,19 +1,18 @@
 Naloge za ta teden:
-- prehod iz Lobby -> Game
-- potrebna komunikacija med threadi
-- cleanup kode
+x prehod iz Lobby -> Game
+x potrebna komunikacija med threadi
+x cleanup kode
 - začetki povezave z aplikacijo ali logiko
 
 Opravljene naloge:
 - izboljšave stabilnosti
-- testiranje
+- testi
 - client updates
-- registracija sedaj potrebuje še email
+- registracija sedaj potrebuje še email -> prenos iz username login na email
 - beleži se last login datetime
 - lobby leave fix
-- igralci so obveščeni ko nekdo zapusti lobby / readyja
-
-
-TODO:
-notify on ready
-send lobby name
+^(3h)
+- igralci so obveščeni ko nekdo zapusti lobby, se pridruzi, readyja, se game zacne
+- pošilja se username & sid na front pri vseh lobby operacijah
+^(1h)
+- game start

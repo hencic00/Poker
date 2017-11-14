@@ -53,6 +53,7 @@ while True:
 		data = {}
 		data['agenda'] = "createLobby"
 		data['userId'] = userId
+		data['lobbyName'] = "LOBBYNAME"
 		# Connect to server and send data
 		data = json.dumps(data)
 		# Create a socket (SOCK_STREAM means a TCP socket)

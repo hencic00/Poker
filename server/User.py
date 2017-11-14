@@ -12,6 +12,18 @@ def getUser(email):
 	else:
 		return rows[0]
 
+def getUsername(userSid):
+	cur,con = mysqlService.connect()
+	cur.execute("SELECT username FROM user WHERE id = '{}'".format(userSid))
+	rows = cur.fetchall()
+
+	cur.close()
+	con.close()
+	if len(rows) == 0:
+		return "ERROR"
+	else:
+		return rows[0][0]
+
 def login(email, password):
 	cur,con = mysqlService.connect()
 	cur.execute("SELECT * FROM user WHERE email = '{}' AND password = '{}'".format(email, password))

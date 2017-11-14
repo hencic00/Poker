@@ -96,9 +96,8 @@ class ThreadedServer(object):
 			elif reqData['agenda'] == "createLobby":
 				closeSocket = False
 				responseData['data'] = "ok"
-				createdLobbyId =lobby.createLobby(self.lobbies)
+				createdLobbyId =lobby.createLobby(self.lobbies, reqData['lobbyName'])
 				lobby.joinLobby(self.lobbies, createdLobbyId, users[reqData['userId']], clientSock, reqData)
-
 			#join a lobby
 			elif reqData['agenda'] == "joinLobby":
 				if reqData['lobbyId'] in self.lobbies:
