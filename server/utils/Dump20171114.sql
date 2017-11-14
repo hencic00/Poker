@@ -25,9 +25,11 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(45) NOT NULL,
+  `email` varchar(45) NOT NULL,
   `password` varchar(45) NOT NULL,
+  `last_login` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,7 +38,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Jan','asd'),(5,'Jaan','asdd'),(6,'asd','asd'),(7,'aaaa','bbbb'),(8,'jurman','geslo123');
+INSERT INTO `user` VALUES (1,'Jurman','jan.jurman@student.um.si','geslo123','2017-11-14 14:37:56'),(2,'Hencic','jan.hencic@student.um.si','geslo123','2017-11-14 14:37:56'),(3,'Kucer','jure.kucer@student.um.si','geslo123','2017-11-14 14:37:56'),(4,'Ruzic','ales.ruzic@student.um.si','geslo123','2017-11-14 14:37:56'),(5,'asd','asd','asd','2017-11-14 14:37:56');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -49,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-12 12:10:54
+-- Dump completed on 2017-11-14 14:40:51

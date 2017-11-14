@@ -11,25 +11,25 @@ def createLobby(lobbies): #TODO spremeni spodnji user v njegov MYSQL id
 	lobbies[lobby['id']] = lobby
 	return lobby['id']
 
-def joinLobby(lobbies, lobbyId, client, reqData, userSid): #sid = sql id
-	user = {'sid': userSid, 'socket': client, 'ready': False}
+def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
+	user = {'sid': userSid, 'socket': clientSock, 'ready': False}
 
 	lobbies[lobbyId]['users'][userSid] = user
 
 	#communicate with client
-	responseData = {}
-	responseData['agenda'] = reqData['agenda']
-	client.sendall(json.dumps(responseData).encode('utf-8')) #send "ok"
+	resData = {}
+	resData['agenda'] = reqData['agenda']
+	clientSock.sendall(json.dumps(resData).encode('utf-8')) #send "ok"
 
 	#wait for start game or leave lobby
 	waiting = True
 	while waiting:
-		data = client.recv(1024) #za ready
+		data = clientSock.recv(1024) #za ready
 		reqData = data.decode("utf-8");
 		reqData = json.loads(reqData)
 		print("LOBBY {}: {}".format(lobbyId,reqData))
-		responseData = {}
-		responseData['agenda'] = reqData['agenda']
+		resData = {}
+		resData['agenda'] = reqData['agenda']
 		if reqData['agenda'] == "ready":
 			lobbies[lobbyId]['users'][userSid]['ready'] = True
 			#TODO poslji vsem da je nekdo readyjal
@@ -48,18 +48,31 @@ def joinLobby(lobbies, lobbyId, client, reqData, userSid): #sid = sql id
 						break
 					#else end thread
 		elif reqData['agenda'] == "leaveLobby":
-			print "LOBBY {}: {} left.".format(lobby['id'], userSid)
-			del lobbies[lobbyId][userSid]
-			#send him ok and disconnect the socket
-			responseData['status'] = "ok"
-			client.sendall(json.dumps(responseData).encode('utf-8'))
-			#TODO tell every one else some 1 left
-
-
+			leaveLobby(lobbies, lobbyId, userSid, clientSock, resData)
+			break
 	#wait for user to start game
 
-def leaveLobby(lobbies, lobbyId, user):
-	pass
+def leaveLobby(lobbies, lobbyId, userSid, clientSock, resData):#TODO: MUTEX
+	print "LOBBY {}: {} left.".format(lobbies[lobbyId]['id'], userSid)
+	#send him ok and disconnect the socket
+	resData['status'] = "ok"
+	clientSock.sendall(json.dumps(resData).encode('utf-8'))
+	clientSock.close();
+	del lobbies[lobbyId]['users'][userSid]
+	notifyEveryone(lobbies, lobbyId, "playerLeft", userSid);
+	
+	#if the leaving player is the last one, destroy the lobby
+	if len(lobbies[lobbyId]['users']) == 0:
+		print "Deleting empty lobby {}.".format(lobbyId)
+		del lobbies[lobbyId]
+
+def notifyEveryone(lobbies, lobbyId, status, data):
+	resData = {}
+	resData['status'] = status
+	resData['data'] = data
+	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
+		user['socket'].sendall(json.dumps(resData))
+
 
 def readyUsersCount(lobby):
 	readyCount = 0

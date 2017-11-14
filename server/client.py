@@ -2,6 +2,29 @@ import socket
 import sys
 import json
 
+def lobbyLoop(data, sock):
+	while True:
+		print("Sending: {}".format(data))
+		sock.sendall(data)
+		received = sock.recv(1024)
+		received = json.loads(received)
+		print ("Received: {}".format(received))
+
+		userInput = raw_input("\nLobby actions:\nReady\t\t(1)\nLeave Lobby\t(2)\n~>")
+		if userInput == "1":
+			data = {}
+			data['agenda'] = "ready"
+			data = json.dumps(data)
+			sock.sendall(data)
+			while True:
+				received = sock.recv(1024)
+				received = json.loads(received)
+				print ("Received: {}".format(received))					
+		elif userInput == "2":
+			data = {}
+			data['agenda'] = "leaveLobby"
+		data = json.dumps(data)
+
 HOST, PORT = "localhost", 9999
 data = " ".join(sys.argv[1:])
 
@@ -11,18 +34,20 @@ userId = ""
 while True:
 	userInput = raw_input("\nActions:\nLogin\t\t(1)\nRegister\t(2)\nCreate Lobby\t(3)\nGet Lobbies\t(4)\nJoin Lobby\t(5)\nLogout\t\t(6)\n~>")
 	if userInput == "1":
-		usernameInput = raw_input("Username: ")
+		emailInput = raw_input("Email: ")
 		passwordInput = raw_input("Password: ")
 		data = {}
 		data['agenda'] = "login"
-		data['username'] = usernameInput
+		data['email'] = emailInput
 		data['password'] = passwordInput
 	elif userInput == "2":
 		usernameInput = raw_input("Username: ")
+		emailInput = raw_input("Email: ")
 		passwordInput = raw_input("Password: ")
 		data = {}
 		data['agenda'] = "register"
 		data['username'] = usernameInput
+		data['email'] = emailInput
 		data['password'] = passwordInput
 	elif userInput == "3":
 		data = {}
@@ -34,21 +59,7 @@ while True:
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		sock.connect((HOST, PORT))
 		
-		while True:
-			print("Sending: {}".format(data))
-			sock.sendall(data)
-			received = sock.recv(1024)
-			received = json.loads(received)
-			print ("Received: {}".format(received))
-
-			userInput = raw_input("\nLobby actions:\nReady\t\t(1)\nLeave Lobby\t(2)\n~>")
-			if userInput == "1":
-				data = {}
-				data['agenda'] = "ready"
-			elif userInput == "2":
-				data = {}
-				data['agenda'] = "leaveLobby"
-			data = json.dumps(data)
+		lobbyLoop(data,sock)
 		continue;
 
 	elif userInput == "4":
@@ -62,21 +73,8 @@ while True:
 		data = json.dumps(data)
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		sock.connect((HOST, PORT))
-		while True:
-			print("Sending: {}".format(data))
-			sock.sendall(data)
-			received = sock.recv(1024)
-			received = json.loads(received)
-			print ("Received: {}".format(received))
+		lobbyLoop(data,sock)
 
-			userInput = raw_input("\nLobby actions:\nReady\t\t(1)\nLeave Lobby\t(2)\n~>")
-			if userInput == "1":
-				data = {}
-				data['agenda'] = "ready"
-			elif userInput == "2":
-				data = {}
-				data['agenda'] = "leaveLobby"
-			data = json.dumps(data)
 		continue;
 
 	elif userInput == "6":
