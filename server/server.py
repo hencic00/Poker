@@ -5,7 +5,6 @@ import json
 from threading import Thread
 import uuid
 
-
 class ThreadedServer(object):
 	global users
 	users = dict() #LUT {uuid: SQL id}

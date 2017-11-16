@@ -19,6 +19,8 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 	#communicate with client
 	resData = {}
 	resData['agenda'] = reqData['agenda']
+	resData['data'] = getLobbyData(lobbies, lobbyId)
+	resData['status'] = "ok"
 	clientSock.sendall(json.dumps(resData).encode('utf-8')) #send "ok"
 
 	#tell everyone a player joined
@@ -72,17 +74,17 @@ def leaveLobby(lobbies, lobbyId, userSid, clientSock, resData):#TODO: MUTEX
 		print "Deleting empty lobby {}.".format(lobbyId)
 		del lobbies[lobbyId]
 
-def notifyEveryone(lobbies, lobbyId, status, data, userSid):
+def notifyEveryone(lobbies, lobbyId, agenda, data, userSid):
 	resData = {}
-	resData['status'] = status
+	resData['agenda'] = agenda
 	if data != None:
 		resData['data'] = data
 	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
 		user['socket'].sendall(json.dumps(resData))
 
-def notifyEveryoneExcept(lobbies, lobbyId, status, data, exceptUserSid):
+def notifyEveryoneExcept(lobbies, lobbyId, agenda, data, exceptUserSid):
 	resData = {}
-	resData['status'] = status
+	resData['agenda'] = agenda
 	if data != None:
 		resData['data'] = data
 	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
@@ -107,15 +109,26 @@ def getAllLobbiesForFront(lobbies):
 		lobbiesForFront.append(lobby)
 	return lobbiesForFront
 
-def getMyLobbyData(lobbies, lobbyId): #TODO
+def getLobbyData(lobbies, lobbyId): #TODO
 	users = []
-	#get user names
-	for usr in lobbies[lobbyId]['users']:
-		users.append(usr[1])
-	lob = {'id' : lobbies[lobbyId]['id'], 'name': lobbies[lobbyId]['name'], 'users': users}
-	return lob
+	for usr in lobbies[lobbyId]['users'].values():
+		users.append({'userSid':usr['sid'], 'username':User.getUsername(usr['sid'])})
+	lobbyData = {'id' : lobbies[lobbyId]['id'], 'name': lobbies[lobbyId]['name'], 'users': users} #todo names?
+	return lobbyData
 
 def startGame(lobbies, lobbyId):
-	while True:
-		time.sleep(3)
-		print "Game logic goes here"
+	#game init
+	from game import Game
+	gameObj = Game(lobbies[lobbyId], 5);
+
+	finishGame(lobbies, lobbyId)
+
+def finishGame(lobbies, lobbyId):
+	print("GAME OVER")
+	#vsakemu poslji da je konec
+
+	#database magic
+
+	#foreach close socket
+
+	#del lobbyies[lobbyId]

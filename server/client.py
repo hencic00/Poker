@@ -2,6 +2,12 @@ import socket
 import sys
 import json
 
+def receiveData(sock):
+	received = sock.recv(1024)
+	received = json.loads(received)
+	print ("Received: {}".format(received))
+	return received
+
 def lobbyLoop(data, sock):
 	while True:
 		print("Sending: {}".format(data))
@@ -10,16 +16,34 @@ def lobbyLoop(data, sock):
 		received = json.loads(received)
 		print ("Received: {}".format(received))
 
-		userInput = raw_input("\nLobby actions:\nReady\t\t(1)\nLeave Lobby\t(2)\n~>")
+		userInput = raw_input("\nLobby actions:\nReady\t\t(1)\nLeave Lobby\t(2)\n~> ")
 		if userInput == "1":
 			data = {}
 			data['agenda'] = "ready"
 			data = json.dumps(data)
 			sock.sendall(data)
 			while True:
-				received = sock.recv(1024)
-				received = json.loads(received)
-				print ("Received: {}".format(received))					
+				received = receiveData(sock) #<- game start
+
+				if received['agenda'] == 'gameStart':
+					while True:
+						rec = receiveData(sock)
+						if rec['agenda'] == "BSblind":
+							pass
+						elif rec['agenda'] == "yourTurn":
+							userInput = raw_input("\nGame actions:\nRaise\t\t(1)\nFold\t\t(2)\nCheck\t\t(3)\n~> ")
+							if userInput == "1":
+								data = {}
+								data['agenda'] = "raise"
+								data['data'] = raw_input("Raise ammount: ")
+								sock.sendall(json.dumps(data))
+							elif userInput == "2":
+								pass
+							elif userInput == "3":
+								pass
+
+
+
 		elif userInput == "2":
 			data = {}
 			data['agenda'] = "leaveLobby"
