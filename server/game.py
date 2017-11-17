@@ -153,7 +153,7 @@ class Round:
 				print("Sending yourTurn to {}".format(gameObject.players[currentPI].id))
 				comms.send(gameObject.players[currentPI].socket, data)
 
-				rec = comms.recieve(gameObject.players[currentPI].socket) #todo timeout?
+				rec = comms.receive(gameObject.players[currentPI].socket) #todo timeout?
 				action = rec['agenda']
 				if(action=="check"):
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
@@ -231,7 +231,7 @@ class Round:
 				#TODO check for bad input
 				comms.send(gameObject.players[currentPI].socket, data)
 
-				rec = comms.recieve(gameObject.players[currentPI].socket) #todo timeout?
+				rec = comms.receive(gameObject.players[currentPI].socket) #todo timeout?
 				action = rec['agenda']
 				if(action=="check"):
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
@@ -298,7 +298,7 @@ class Round:
 	def endRound(self, gameObject, winners):
 		data = {}
 		data['agenda'] = "playerWon"
-		data['data'] = {'winnerSid': [], 'earnings': [], 'playerSid':[], 'playerHands':[]}
+		data['data'] = {'winnerSid': [], 'earnings': [], 'playerSid':[], 'playerHands':[], 'currentCash':[]}
 
 		if(len(winners)==1):
 			#only 1 winner

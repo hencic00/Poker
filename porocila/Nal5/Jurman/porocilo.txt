@@ -16,3 +16,7 @@ Opravljene naloge:
 - pošilja se username & sid na front pri vseh lobby operacijah
 ^(1h)
 - game start
+- povezava z logiko
+^(6h)
+- prenos socket komunikacije na payload metodo
+^(1.5h)

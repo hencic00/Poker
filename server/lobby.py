@@ -1,6 +1,7 @@
 import User
 import json
 import time
+import comms
 
 def createLobby(lobbies, lobbyName): #TODO spremeni spodnji user v njegov MYSQL id
 	#create lobby object
@@ -21,7 +22,9 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 	resData['agenda'] = reqData['agenda']
 	resData['data'] = getLobbyData(lobbies, lobbyId)
 	resData['status'] = "ok"
-	clientSock.sendall(json.dumps(resData).encode('utf-8')) #send "ok"
+
+	comms.send(clientSock, resData)
+	# clientSock.sendall(json.dumps(resData).encode('utf-8')) #send "ok"
 
 	#tell everyone a player joined
 	notifyEveryoneExcept(lobbies, lobbyId, "playerJoined", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid)
@@ -29,9 +32,10 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 	#wait for start game or leave lobby
 	waiting = True
 	while waiting:
-		data = clientSock.recv(1024) #za ready
-		reqData = data.decode("utf-8");
-		reqData = json.loads(reqData)
+		reqData = comms.receive(clientSock)
+		# data = clientSock.recv(1024) #za ready
+		# reqData = data.decode("utf-8");
+		# reqData = json.loads(reqData)
 		print("LOBBY {}: {}".format(lobbyId,reqData))
 		resData = {}
 		resData['agenda'] = reqData['agenda']
@@ -64,7 +68,8 @@ def leaveLobby(lobbies, lobbyId, userSid, clientSock, resData):#TODO: MUTEX
 	print "LOBBY {}: {} left.".format(lobbies[lobbyId]['id'], userSid)
 	#send him ok and disconnect the socket
 	resData['status'] = "ok"
-	clientSock.sendall(json.dumps(resData).encode('utf-8'))
+	comms.send(clientSock, resData)
+	# clientSock.sendall(json.dumps(resData).encode('utf-8'))
 	clientSock.close();
 	del lobbies[lobbyId]['users'][userSid]
 	notifyEveryone(lobbies, lobbyId, "playerLeft", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid);
@@ -80,7 +85,8 @@ def notifyEveryone(lobbies, lobbyId, agenda, data, userSid):
 	if data != None:
 		resData['data'] = data
 	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
-		user['socket'].sendall(json.dumps(resData))
+		comms.send(user['socket'], resData)
+		# user['socket'].sendall(json.dumps(resData))
 
 def notifyEveryoneExcept(lobbies, lobbyId, agenda, data, exceptUserSid):
 	resData = {}
@@ -89,7 +95,8 @@ def notifyEveryoneExcept(lobbies, lobbyId, agenda, data, exceptUserSid):
 		resData['data'] = data
 	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
 		if(user['sid']) != exceptUserSid:
-			user['socket'].sendall(json.dumps(resData))
+			comms.send(user['socket'], resData)
+			# user['socket'].sendall(json.dumps(resData))
 
 def readyUsersCount(lobby):
 	readyCount = 0

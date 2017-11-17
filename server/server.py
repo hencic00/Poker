@@ -4,6 +4,7 @@ import lobby
 import json
 from threading import Thread
 import uuid
+import comms
 
 class ThreadedServer(object):
 	global users
@@ -46,10 +47,11 @@ class ThreadedServer(object):
 	def handle(self, clientSock, address):
 		packetSize = 1024
 		closeSocket = True
-		data = clientSock.recv(packetSize)
-		print("{} sent request.".format(address))
-		reqData = data.decode("utf-8");
-		reqData = json.loads(reqData)
+		# data = clientSock.recv(packetSize)
+		reqData = comms.receive(clientSock)
+		# print("{} sent request.".format(address))
+		# reqData = data.decode("utf-8");
+		# reqData = json.loads(reqData)
 		responseData = {}
 		responseData['agenda'] = reqData['agenda']
 		#login user
@@ -118,7 +120,8 @@ class ThreadedServer(object):
 				responseData['status'] = "badRequest"
 
 		if closeSocket:
-			clientSock.sendall(json.dumps(responseData).encode('utf-8')) #persistent connections handle themselves in their functions
+			comms.send(clientSock, responseData)
+			# clientSock.sendall(json.dumps(responseData).encode('utf-8')) #persistent connections handle themselves in their functions
 			print "closing socket for {}.".format(address)
 			clientSock.close()
 
