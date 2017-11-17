@@ -120,7 +120,7 @@ def startGame(lobbies, lobbyId):
 	#game init
 	from game import Game
 	gameObj = Game(lobbies[lobbyId], 5);
-
+	# print(gameObj.startGame())
 	finishGame(lobbies, lobbyId)
 
 def finishGame(lobbies, lobbyId):

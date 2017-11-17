@@ -46,8 +46,11 @@ class Game:
 		#za vsakega lobby usera naredi playera
 		for user in lobby['users'].values():
 			self.addPlayer(Player(1000, user))
-
 		self.startNewRound()
+
+	def startGame(self):
+		self.startNewRound()
+		return "GAME END MAGIC"
 
 	def convertNotation(self, rank, suit):
 		return self.cardRankLUT[rank] + self.cardSuitLUT[suit]
@@ -107,6 +110,31 @@ class Round:
 		for p in range(0, playerCount):   #init. playerStatus array-all to false, except those who folded (set to None)
 			if(self.playerStatus[p]!=None):
 				self.playerStatus[p]=False
+		# while(True):
+		# 	if(self.countActivePlayers(playerCount)==1):    #check if more than 1 player is still active (un-folded)
+		# 		return False
+		# 	if(self.playerStatus[currentPI]==None): #skip player that folded
+		# 		currentPI=self.nextPlayer(currentPI, playerCount)
+		# 	else:
+		# 		print("Current min. bet: " + str(self.currentMinBet) + "\r\nCurrent pot: " + str(self.pot))
+		# 		if(self.checkArray(self.playerStatus)):
+		# 			break
+		# 		print(" Player "+str(currentPI))
+		# 		action = input(" Your current bet: " + str(self.roundPlayers[currentPI].currentBet) + " \r\nSelect action: R-Raise, C-Check, F-Fold\r\n")
+		# 		if(action=="C"):
+		# 			self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
+		# 			self.playerStatus[currentPI]=True
+		# 			currentPI=self.nextPlayer(currentPI, playerCount)
+		# 		elif(action=="R"):
+		# 			inputRaise = input("Current min. bet: " + str(self.currentMinBet) + " How much do you want to raise?\r\n")
+		# 			self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
+		# 			self.playerStatus[currentPI]=True
+		# 			self.resetPlayerStatusAfterRaise(currentPI)
+		# 			self.currentMinBet+=inputRaise
+		# 			currentPI=self.nextPlayer(currentPI, playerCount)
+		# 		elif(action=="F"):
+		# 			self.playerStatus[currentPI]=None
+		# 			currentPI=self.nextPlayer(currentPI, playerCount)
 		while(True):
 			if(self.countActivePlayers(playerCount)==1):    #check if more than 1 player is still active (un-folded)
 				return False
@@ -117,20 +145,51 @@ class Round:
 				if(self.checkArray(self.playerStatus)):
 					break
 				print(" Player "+str(currentPI))
-				action = input(" Your current bet: " + str(self.roundPlayers[currentPI].currentBet) + " \r\nSelect action: R-Raise, C-Check, F-Fold\r\n")
-				if(action=="C"):
+				#action = input(" Your current bet: " + str(self.roundPlayers[currentPI].currentBet) + " \r\nSelect action: R-Raise, C-Check, F-Fold\r\n")
+				#tell the player its his turn
+				data = {}
+				data['agenda'] = "yourTurn"
+				#TODO check for bad input
+				print("Sending yourTurn to {}".format(gameObject.players[currentPI].id))
+				comms.send(gameObject.players[currentPI].socket, data)
+
+				rec = comms.recieve(gameObject.players[currentPI].socket) #todo timeout?
+				action = rec['agenda']
+				if(action=="check"):
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
 					self.playerStatus[currentPI]=True
+
+					data = {}
+					data['agenda'] = "playerCheck"
+					data['data'] = gameObject.players[currentPI].id #player ki je raisal: SID
+					comms.broadcastToPlayers(gameObject.players, data)
+
 					currentPI=self.nextPlayer(currentPI, playerCount)
-				elif(action=="R"):
-					inputRaise = input("Current min. bet: " + str(self.currentMinBet) + " How much do you want to raise?\r\n")
+				elif(action=="raise"):
+					#TODO check da raisa vec kot je min SERVER SIDE
+					#inputRaise = input("Current min. bet: " + str(self.currentMinBet) + " How much do you want to raise?\r\n")
+					inputRaise = int(rec['data'])
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
 					self.playerStatus[currentPI]=True
 					self.resetPlayerStatusAfterRaise(currentPI)
 					self.currentMinBet+=inputRaise
+
+					print("RAISE: {}".format(inputRaise))
+					#notify everyone player raised
+					data = {}
+					data['agenda'] = "playerRaise"
+					data['data'] = [gameObject.players[currentPI].id, inputRaise] #player ki je raisal: SID, stevilo
+					comms.broadcastToPlayers(gameObject.players, data)
+
 					currentPI=self.nextPlayer(currentPI, playerCount)
-				elif(action=="F"):
+				elif(action=="fold"):
 					self.playerStatus[currentPI]=None
+					
+					data = {}
+					data['agenda'] = "playerFold"
+					data['data'] = gameObject.players[currentPI].id #player ki je raisal: SID
+					comms.broadcastToPlayers(gameObject.players, data)
+
 					currentPI=self.nextPlayer(currentPI, playerCount)
 		return True
 
@@ -172,11 +231,17 @@ class Round:
 				#TODO check for bad input
 				comms.send(gameObject.players[currentPI].socket, data)
 
-				rec = comms.recieve(gameObject.players[currentPI].socket)
+				rec = comms.recieve(gameObject.players[currentPI].socket) #todo timeout?
 				action = rec['agenda']
 				if(action=="check"):
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
 					self.playerStatus[currentPI]=True
+
+					data = {}
+					data['agenda'] = "playerCheck"
+					data['data'] = gameObject.players[currentPI].id #player ki je raisal: SID
+					comms.broadcastToPlayers(gameObject.players, data)
+
 					currentPI=self.nextPlayer(currentPI, playerCount)
 				elif(action=="raise"):
 					#TODO check da raisa vec kot je min SERVER SIDE
@@ -186,15 +251,23 @@ class Round:
 					self.playerStatus[currentPI]=True
 					self.resetPlayerStatusAfterRaise(currentPI)
 					self.currentMinBet+=inputRaise
-					currentPI=self.nextPlayer(currentPI, playerCount)
 
 					print("RAISE: {}".format(inputRaise))
+					#notify everyone player raised
 					data = {}
-					data['agenda'] = "playerRaised"
-					data['data'] = [gameObject.players[currentPI].id, inputRaise] #player ki je poslal SID, stevilo
+					data['agenda'] = "playerRaise"
+					data['data'] = [gameObject.players[currentPI].id, inputRaise] #player ki je raisal: SID, stevilo
 					comms.broadcastToPlayers(gameObject.players, data)
+
+					currentPI=self.nextPlayer(currentPI, playerCount)
 				elif(action=="fold"):
 					self.playerStatus[currentPI]=None
+					
+					data = {}
+					data['agenda'] = "playerFold"
+					data['data'] = gameObject.players[currentPI].id #player ki je raisal: SID
+					comms.broadcastToPlayers(gameObject.players, data)
+
 					currentPI=self.nextPlayer(currentPI, playerCount)
 		return True
 
@@ -223,10 +296,16 @@ class Round:
 		return counter
 
 	def endRound(self, gameObject, winners):
+		data = {}
+		data['agenda'] = "playerWon"
+		data['data'] = {'winnerSid': [], 'earnings': [], 'playerSid':[], 'playerHands':[]}
+
 		if(len(winners)==1):
 			#only 1 winner
 			gameObject.players[winners[0]].money+=self.pot
-			print("Player " + str(winners[0]) + " WON (others Folded)")   
+			print("Player " + str(winners[0]) + " WON (others Folded)")
+			data['playerSid'] = gameObject.players[winners[0]]	#front checks len(data['playerSid'])
+			data['earnings'] = self.pot
 		else:
 			#split the pot
 			potSplit=self.pot / len(winners)
@@ -234,10 +313,18 @@ class Round:
 			for p in winners:
 				gameObject.players[winnerIndex].money+=potSplit
 				print("Player " + str(winners[0]) + " ")
+				data['playerSid'].append(gameObject.players[p])
+				data['earnings'].append(potSplit)	#TODO edge cases kot so all in pa premalo dnara
+		
+		for player in gameObject.players:
+			data['data']['playerSid'].append(player.id)
+			data['data']['playerHands'].append(player.hand)
+			data['data']['currentCash'].append(player.money)
+		comms.broadcastToPlayers(gameObject.players, data);
+
 		gameObject.roundCounter+=1
 		print("\r\n\r\n")
-							 
-   
+
 	def getLastPlayer(self):
 		for i in range(len(self.roundPlayers)):
 			if(self.playerStatus[i] is not None):
@@ -276,7 +363,7 @@ class Round:
 			data['agenda'] = "gameStart"
 			data['status'] = "ok"
 			currentHand = player.hand
-			data['hand'] = [
+			data['data'] = [
 				gameObject.convertNotation(Card.get_rank_int(currentHand[0]), Card.get_suit_int(currentHand[0])),
 				gameObject.convertNotation(Card.get_rank_int(currentHand[1]), Card.get_suit_int(currentHand[1]))
 			]
@@ -296,7 +383,8 @@ class Round:
 		#Flop phase
 		print("--Flop--")
 		self.board=self.deck.draw(3)    #3 cards to board
-		result=self.bettingPhase(gameObject, (gameObject.roundCounter % len(self.roundPlayers)))                
+		self.revealCards(gameObject, self.board)
+		result=self.bettingPhase(gameObject, (gameObject.roundCounter % len(self.roundPlayers)))
 		#check if all but 1 folded else go to next phase
 		if(not result): #only 1 player remains active; end game
 			lastPlayerIndex=self.getLastPlayer()
@@ -307,54 +395,66 @@ class Round:
 				return False
 		#Turn phase
 		print("--Turn--")
-		self.board.append(self.deck.draw(1))
+		drawnCard = self.deck.draw(1)
+		self.revealCards(gameObject, [drawnCard])
+		self.board.append(drawnCard)
 		result=self.bettingPhase(gameObject, (gameObject.roundCounter % len(self.roundPlayers)))
 		#check if all but 1 folded else go to next phase
 		if(not result): #only 1 player remains active; end game
 			lastPlayerIndex=self.getLastPlayer()
-			if(lastPlayerIndex is False):
+			if(lastPlayerIndex is not False):
 				self.endRound(gameObject, [lastPlayerIndex])
 				return True   
 			else:
 				return False
 		#River phase
 		print("--River--")
-		self.board.append(self.deck.draw(1))
+		drawnCard = self.deck.draw(1)
+		self.revealCards(gameObject, [drawnCard])
+		self.board.append(drawnCard)
 		result=self.bettingPhase(gameObject, (gameObject.roundCounter % len(self.roundPlayers)))
 		#end hand comparison
 		if(not result): #only 1 player remains active; end game
 			lastPlayerIndex=self.getLastPlayer()
-			if(lastPlayerIndex is False):
+			if(lastPlayerIndex is not False):
 				self.endRound(gameObject, [lastPlayerIndex])
-				return True   
+				return True
 			else:
 				return False
-		allHands = []
+		# allHands = []
 		for i in range(playerCount):
 			if(self.playerStatus != None):
 				self.playerHandScores.append(evaluator.evaluate(self.board, self.roundPlayers[i].hand))
 				self.playerHandClasses.append(evaluator.get_rank_class(self.playerHandScores[i]))
-				allHands.append(self.roundPlayers[i].hand)
+		# 		allHands.append(self.roundPlayers[i].hand)
 			else:
 				self.playerHandScores.append(None)
 				self.playerHandClasses.append(None)
-				allHands.append(self.roundPlayers[i].hand)
+				# allHands.append(self.roundPlayers[i].hand)
 		#print(str(Card.get_suit_int(self.board[0]))+" "+str(Card.get_rank_int(self.board[0])))
-		print("BOARD: ")
-		Card.print_pretty_cards(self.board)        
-		for i in range(playerCount):
-			if(self.playerStatus[i]!=None):
-				print("Player " + str(i) + ": ")
-				Card.print_pretty_cards(self.roundPlayers[i].hand)
-			else:
-				print("Player " + str(i) + ": FOLDED")
+		# print("BOARD: ")
+		# Card.print_pretty_cards(self.board)        
+		# for i in range(playerCount):
+		# 	if(self.playerStatus[i]!=None):
+		# 		print("Player " + str(i) + ": ")
+		# 		Card.print_pretty_cards(self.roundPlayers[i].hand)
+		# 	else:
+		# 		print("Player " + str(i) + ": FOLDED")
 
 
 		winners=self.getWinnerIndexes()      
 		self.endRound(gameObject, winners)
-		evaluator.hand_summary(self.board, allHands)      
+		# evaluator.hand_summary(self.board, allHands)      
 		return True
-		
+
+	def revealCards(self, gameObject, cards):
+		data = {}
+		data['agenda'] = "cardReveal"
+		data['data'] = []
+		for card in cards:
+			data['data'].append(gameObject.convertNotation(Card.get_rank_int(card), Card.get_suit_int(card)))
+		comms.broadcastToPlayers(gameObject.players, data);
+
 				   
 class Player:
 	def __init__(self, moneyInit, user):

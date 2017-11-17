@@ -4,7 +4,6 @@ import json
 
 def receiveData(sock):
 	received = sock.recv(1024)
-	received = json.loads(received)
 	print ("Received: {}".format(received))
 	return received
 
@@ -26,6 +25,9 @@ def lobbyLoop(data, sock):
 				received = receiveData(sock) #<- game start
 
 				if received['agenda'] == 'gameStart':
+					myHand = received['data']
+					board = []
+					print("myHand: {}".format(myHand))
 					while True:
 						rec = receiveData(sock)
 						if rec['agenda'] == "BSblind":
@@ -38,11 +40,19 @@ def lobbyLoop(data, sock):
 								data['data'] = raw_input("Raise ammount: ")
 								sock.sendall(json.dumps(data))
 							elif userInput == "2":
-								pass
+								data = {}
+								data['agenda'] = "fold"
+								sock.sendall(json.dumps(data))
 							elif userInput == "3":
-								pass
-
-
+								data = {}
+								data['agenda'] = "check"
+								sock.sendall(json.dumps(data))
+						elif rec['agenda'] == "cardReveal":
+							board += rec['data']
+							print("BOARD: {}".format(board))
+							pass
+						elif rec['agenda'] == "turnEnd": #???
+							pass
 
 		elif userInput == "2":
 			data = {}

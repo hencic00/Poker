@@ -1,11 +1,13 @@
 import json
 
 def send(socket, data):
+	print("SENDING: {}".format(data))
 	socket.sendall(json.dumps(data).encode('utf-8')) #send "ok"
 
 def recieve(socket):
 	data = socket.recv(1024) #za ready
-	reqData = data.decode("utf-8");
+	reqData = data.decode("utf-8")
+	print(">>>> {}".format(reqData))
 	reqData = json.loads(reqData)
 	return reqData
 
