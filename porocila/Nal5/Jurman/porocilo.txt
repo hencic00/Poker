@@ -1,9 +1,3 @@
-Naloge za ta teden:
-x prehod iz Lobby -> Game
-x potrebna komunikacija med threadi
-x cleanup kode
-- začetki povezave z aplikacijo ali logiko
-
 Opravljene naloge:
 - izboljšave stabilnosti
 - testi
@@ -19,4 +13,10 @@ Opravljene naloge:
 - povezava z logiko
 ^(6h)
 - prenos socket komunikacije na payload metodo
-^(1.5h)
+- dokumentacija
+^(2h)
+- povezava z front endom
+^(2h)
+
+Naloge za ta teden:
+- dopust. Po potrebi kaj manjšega za logiko / komunikacijo s front

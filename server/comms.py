@@ -9,7 +9,7 @@ def send(socket, data):
 	# print len(strData)
 	msgLenPackage = struct.pack('!i', len(strData))
 	socket.sendall(msgLenPackage)
-	print "Sending:{}({})~> {}".format(msgLenPackage, len(strData), strData);
+	print "Sending:({})~> {}".format(len(strData), strData);
 	socket.sendall(strData)
 
 def receive(socket):
@@ -30,7 +30,7 @@ def receive(socket):
 	print reqData
 	reqData = reqData.decode("utf-8");
 	reqData = json.loads(reqData)
-	print("Received:{}({})~> {}".format(tmpBuff,msgLenPackage, reqData))
+	print("Received:({})~> {}".format(msgLenPackage, reqData))
 	return reqData
 
 def broadcastToPlayers(players, data):
