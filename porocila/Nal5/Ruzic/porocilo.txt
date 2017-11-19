@@ -1,1 +1,9 @@
 
+Opravljene naloge v 5. tednu:
+	- Uvodna animacija pri zagonu aplikacije (cca 4-5 h)
+	- Pošiljanje maila ob registraciji
+	- Pošiljanje maila ob podaljšani neaktivnosti profila (cca 3h)
+	
+
+Naloge za naslednji teden:
+	
