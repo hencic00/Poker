@@ -6,8 +6,9 @@ def send(socket, data):
 	strData = strData.encode('utf-8')
 	# print(len(strData))
 	# msgLenPackage = bytearray.fromhex(format(len(strData), '04x'))
+	# print len(strData)
 	msgLenPackage = struct.pack('!i', len(strData))
-	# print "sending:{}".format(msgLenPackage);
+	print "sending:{}".format(msgLenPackage);
 	socket.sendall(msgLenPackage)
 	print("Sending: {}".format(strData))
 	socket.sendall(strData)
@@ -16,15 +17,21 @@ def receive(socket):
 	# msgLenPackage = socket.recv(4)
 	# msgLenPackage = struct.unpack("I", bytearray(msgLenPackage))
 	# print("msglen:{}".format(msgLenPackage))
-	buf = ''
-	while len(buf) < 4:
-		buf += socket.recv(1)
-	msgLenPackage = struct.unpack('!i', buf[:4])[0]
+	msgLenPackage = 0
+	index = 0
+	while index < 4:
+		recBuf = socket.recv(1)
+		msgLenPackage += (ord(recBuf) * 2**(8 * index))
+		index = index + 1
+
+	# msgLenPackage = struct.unpack('!i', buf[:4])[0]
+
 	reqData = socket.recv(msgLenPackage)
-	# print(">>>> {}".format(reqData))
+	print reqData
+	print(">>>> {}".format(msgLenPackage))
 	reqData = reqData.decode("utf-8");
 	reqData = json.loads(reqData)
-	# print("==>> {}".format(reqData))
+	print("==>> {}".format(reqData))
 	return reqData
 
 def broadcastToPlayers(players, data):

@@ -18,4 +18,5 @@ class signUpPage : public QFrame
 
 	public slots:
 		void backButtonClicked();
+		void applyButtonClicked();
 };
