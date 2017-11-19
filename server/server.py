@@ -80,7 +80,7 @@ class ThreadedServer(object):
 			print("Register attempt: {}\t{}".format(reqData['username'], reqData['email'], reqData['password']))
 			user = User.register(reqData['username'], reqData['email'],reqData['password'])
 			if user == 0:
-				responseData['status'] = "usernameTaken"
+				responseData['status'] = "emailTaken"
 			else:
 				responseData['status'] = "ok"
 				responseData['userId'] = str(uuid.uuid4())

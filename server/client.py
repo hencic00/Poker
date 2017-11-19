@@ -9,7 +9,7 @@ def lobbyLoop(data, sock):
 		received = comms.receive(sock)
 		# received = sock.recv(1024)
 		# received = json.loads(received)
-		print ("Received: {}".format(received))
+		# print ("Received: {}".format(received))
 
 		userInput = raw_input("\nLobby actions:\nReady\t\t(1)\nLeave Lobby\t(2)\n~> ")
 		if userInput == "1":
@@ -119,7 +119,7 @@ while True:
 	received = comms.receive(sock)
 	# received = sock.recv(1024)
 	# received = json.loads(received)
-	print ("Received: {}".format(received))
+	# print ("Received: {}".format(received))
 	if received['status'] != "allreadyLoggedIn" and received['status'] == "ok":
 		if received['agenda'] == "login" or received['agenda'] == "register":
 			userId = received['userId']
