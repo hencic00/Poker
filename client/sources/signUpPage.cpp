@@ -10,8 +10,76 @@
 #include <iostream>
 #include <QSvgWidget>
 
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+#define PORT 9999
 
 #include "signUpPage.h"
+
+void test()
+{
+	struct sockaddr_in address;
+    int sock = 0, valread;
+    struct sockaddr_in serv_addr;
+
+
+    char *hello = "{\"username\": \"plesJesus\", \"password\": \"plesJesus\", \"email\": \"plesJesus\", \"agenda\": \"register\"}";
+    int length = strlen(hello);
+
+    char buffer[1024] = {0};
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        printf("\n Socket creation error \n");
+    }
+  
+    memset(&serv_addr, '0', sizeof(serv_addr));
+  
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+      
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
+    {
+        printf("\nInvalid address/ Address not supported \n");
+    }
+  
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+        printf("\nConnection Failed \n");
+    }
+
+    send(sock , (char*) &length , 4 , 0 );
+    // send(sock , (char*) length , 4 , 0 );
+    // send(sock , (char*) length , 4 , 0 );
+    // send(sock , (char*) length , 4 , 0 );
+    send(sock , hello , length , 0 );
+
+    int responseLength = 0;
+    int responseLength1 = 0;
+
+
+    recv(sock, (char*) &responseLength, 4, 0);
+    responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
+    responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
+    responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
+    responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
+
+    std::cout << responseLength1 << std::endl;
+
+}
 
 signUpPage::signUpPage(QWidget *parent):QFrame(parent)
 {			 
@@ -76,6 +144,8 @@ void signUpPage::initUI()
 	signUpButton->setFixedSize(rec.width() * 0.125, rec.height()*0.09);
 	signUpButton->setIconSize(QSize(rec.height()*0.05, rec.height()*0.05));
 	signUpButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	connect(signUpButton, &QPushButton::clicked, this, &signUpPage::applyButtonClicked);
+
 
 	hbox->addWidget(backButton);
 	hbox->addWidget(signUpButton);
@@ -104,6 +174,11 @@ void signUpPage::initUI()
 	vbox4->addStretch(6);
 
 	this->setLayout(vbox4);
+}
+
+void signUpPage::applyButtonClicked()
+{
+	test();
 }
 
 void signUpPage::backButtonClicked()
