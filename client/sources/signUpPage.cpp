@@ -2,87 +2,23 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLineEdit>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QPushButton>
 #include <QRect>
 #include <iostream>
 #include <QSvgWidget>
-
-#include <stdio.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-
-#define PORT 9999
+#include <QRegExp>
+#include <QRegExpValidator>
+#include <QJsonObject>
 
 #include "signUpPage.h"
 
-void test()
-{
-	struct sockaddr_in address;
-    int sock = 0, valread;
-    struct sockaddr_in serv_addr;
-
-
-    char *hello = "{\"username\": \"plesJesus\", \"password\": \"plesJesus\", \"email\": \"plesJesus\", \"agenda\": \"register\"}";
-    int length = strlen(hello);
-
-    char buffer[1024] = {0};
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        printf("\n Socket creation error \n");
-    }
-  
-    memset(&serv_addr, '0', sizeof(serv_addr));
-  
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-      
-    // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
-    {
-        printf("\nInvalid address/ Address not supported \n");
-    }
-  
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        printf("\nConnection Failed \n");
-    }
-
-    send(sock , (char*) &length , 4 , 0 );
-    // send(sock , (char*) length , 4 , 0 );
-    // send(sock , (char*) length , 4 , 0 );
-    // send(sock , (char*) length , 4 , 0 );
-    send(sock , hello , length , 0 );
-
-    int responseLength = 0;
-    int responseLength1 = 0;
-
-
-    recv(sock, (char*) &responseLength, 4, 0);
-    responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
-    responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
-    responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
-    responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
-
-    std::cout << responseLength1 << std::endl;
-
-}
 
 signUpPage::signUpPage(QWidget *parent):QFrame(parent)
 {			 
+
+	server = new connectionHandler();
 	initUI();
 }
 
@@ -104,25 +40,34 @@ void signUpPage::initUI()
 	hbox2->addStretch(1);
 
 
-	QLineEdit* email = new QLineEdit();
+	email = new QLineEdit();
 	email->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	email->setStyleSheet("margin-bottom: 20px; padding: 30px;");
 	email->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
 	email->setFont(font);
+	QRegExp re("[a-z0-9._%+-]*@?[a-z0-9.-]*\\.?[a-z]*");
+	QRegExpValidator *validator = new QRegExpValidator(re, this);
+	email->setValidator(validator);
 	email->setPlaceholderText("E-mail");
 
-	QLineEdit* password = new QLineEdit();
+	password = new QLineEdit();
 	password->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	password->setStyleSheet("margin-bottom: 20px; padding: 30px;");
 	password->setFont(font);
 	password->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	QRegExp re1("/^[\x21-\x7E]+$/");
+	QRegExpValidator *validator1 = new QRegExpValidator(re, this);
+	password->setEchoMode(QLineEdit::Password);
+	password->setValidator(validator1);
 	password->setPlaceholderText("Password");
 
 
-	QLineEdit* passwordRe = new QLineEdit();
+	passwordRe = new QLineEdit();
 	passwordRe->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	passwordRe->setStyleSheet("margin-bottom: 20px; padding: 30px;");
 	passwordRe->setFont(font);
+	passwordRe->setEchoMode(QLineEdit::Password);
+	passwordRe->setValidator(validator1);
 	passwordRe->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
 	passwordRe->setPlaceholderText("Retype password");
 
@@ -178,7 +123,29 @@ void signUpPage::initUI()
 
 void signUpPage::applyButtonClicked()
 {
-	test();
+	if (email->text().length() == 0 || password->text().length() == 0 || passwordRe->text().length() == 0)
+	{
+		std::cout << "fields empty" << std::endl;
+	}
+	else if (password->text() != passwordRe->text())
+	{
+		std::cout << "passwords do not match" << std::endl;
+	}
+	else
+	{
+		QJsonObject obj = server->signUp(email->text(), email->text(), password->text());
+		QJsonValue val = obj.value("status");
+		
+		if (val.toString() == "emailTaken")
+		{
+			std::cout << "email taken" << std::endl;
+		}
+		else
+		{
+			std::cout << "Welcome!" << std::endl;
+		}
+	}
+
 }
 
 void signUpPage::backButtonClicked()

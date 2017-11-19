@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QFrame>
+#include <QLineEdit>
+
+#include "connectionHandler/connectionHandler.h"
 
 class signUpPage : public QFrame
 {
@@ -12,6 +15,12 @@ class signUpPage : public QFrame
 
 	private:
 		void initUI();
+
+		QLineEdit* email;
+		QLineEdit* password;
+		QLineEdit* passwordRe;
+
+		connectionHandler* server;
 
 	signals:
 		void navigateTo(char* title, int index);
