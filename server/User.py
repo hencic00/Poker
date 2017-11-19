@@ -54,3 +54,14 @@ def register(username, email, password):
 	cur.close()
 	con.close()
 	return lastInsertId
+	
+def getAllInactiveUsers():
+	cur,con = mysqlService.connect()
+	cur.execute("SELECT * FROM user where DATE_SUB(now(),interval 1 month) < user.last_login")
+	results = cur.fetchall()
+	cur.close()
+	con.close()
+	if len(results) == 0:
+		return 0
+	else:
+		return results
