@@ -66,12 +66,12 @@ class Game:
 			return False
 
 	def startNewRound(self): #"Kucerov TODO: po pointerah se prenasa vse. Nisem jaz noter v roundu tu pokvaril cesa?"
-		roundObject = None
 		if(len(self.players) > 1):
-			roundObject = Round(self)
-			roundObject.reset(self)
-			roundObject.startRound(self)
-			self.startNewRound()
+			while(True):
+				roundObject = Round(self)
+				result=roundObject.startRound(self)
+				print("RESULT: " + str(result))
+				roundObject.reset(self)
 		else:
 			return False
 
@@ -84,7 +84,7 @@ class Round:
 		self.playerHandScores = []
 		self.playerHandClasses = []
 		self.board = []
-		self.deck = gameObject.unshuffledDeck
+		self.deck = Deck()
 		#self.deck = random.sample(gameObject.unshuffledDeck, 52)    #deck shuffle -> uporablja Fisher-Yates O(n)
 	 
 		for p in self.roundPlayers: #empty player hands
@@ -303,8 +303,8 @@ class Round:
 		if(len(winners)==1):
 			#only 1 winner
 			gameObject.players[winners[0]].money+=self.pot
-			print("Player " + str(winners[0]) + " WON (others Folded)")
-			data['playerSid'] = gameObject.players[winners[0]]	#front checks len(data['playerSid'])
+			print("Player " + str(winners[0]) + " WON")
+			data['winnerSid'] = gameObject.players[winners[0]].id	#front checks len(data['playerSid'])
 			data['earnings'] = self.pot
 		else:
 			#split the pot
@@ -320,6 +320,7 @@ class Round:
 			data['data']['playerSid'].append(player.id)
 			data['data']['playerHands'].append(player.hand)
 			data['data']['currentCash'].append(player.money)
+		print(data)
 		comms.broadcastToPlayers(gameObject.players, data);
 
 		gameObject.roundCounter+=1
