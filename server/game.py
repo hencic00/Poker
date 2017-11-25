@@ -68,16 +68,20 @@ class Game:
 	def startNewRound(self): #"Kucerov TODO: po pointerah se prenasa vse. Nisem jaz noter v roundu tu pokvaril cesa?"
 		if(len(self.players) > 1):
 			while(True):
+				print("------------------")
+				print("ROUND " + str(self.roundCounter) + "START")
 				roundObject = Round(self)
 				result=roundObject.startRound(self)
 				print("RESULT: " + str(result))
 				roundObject.reset(self)
+				roundObject=None
 		else:
 			return False
 
 class Round:
 	def __init__(self, gameObject):
 		self.pot = 0
+		self.sidePot = 0
 		self.currentMinBet = gameObject.minBet
 		self.roundPlayers = gameObject.players
 		self.playerStatus = []
@@ -91,18 +95,7 @@ class Round:
 			p.hand = []
 
 	def reset(self, gameObject):
-		self.pot = 0
-		self.currentMinBet = gameObject.minBet
-		self.roundPlayers = gameObject.players
-		self.playerStatus = []
-		self.playerHandScores = []
-		self.playerHandClasses = []
-		self.board = []
-		self.deck = Deck()
-		#self.deck = random.sample(gameObject.unshuffledDeck, 52)    #deck shuffle -> uporablja Fisher-Yates O(n)
-	 
-		for p in self.roundPlayers: #empty player hands
-			p.hand = []
+		self.__init__(gameObject)
 		
 	def bettingPhase(self, gameObject, startPlayerIndex):
 		playerCount=len(self.roundPlayers)
@@ -295,7 +288,27 @@ class Round:
 				counter += 1
 		return counter
 
+	def getMinBetAndSecondMinBetAndItsIndexes(self):
+		minBet=None;
+		secondMinBet=None;
+		index=None
+		secondIndex=None
+		for i in range(len(self.roundPlayers)):	#get first non-folded players bet as min
+			if(self.playerStatus[i] is not None):
+				minBet=self.roundPlayers[i].currentBet
+				index=i
+				break;
+
+		for i in range(len(self.roundPlayers)):	#search for smaller bet
+			if(self.playerStatus[i] is not None and self.roundPlayers[i].currentBet < minBet):
+				secondMinBet=minBet
+				secondIndex=index
+				minBet=self.roundPlayers[i].currentBet
+				index=i
+		return [index, minBet, secondIndex, secondMinBet];
+
 	def endRound(self, gameObject, winners):
+		#winners=[0,1]
 		data = {}
 		data['agenda'] = "playerWon"
 		data['data'] = {'winnerSid': [], 'earnings': [], 'playerSid':[], 'playerHands':[], 'currentCash':[]}
@@ -307,14 +320,61 @@ class Round:
 			data['winnerSid'] = gameObject.players[winners[0]].id	#front checks len(data['playerSid'])
 			data['earnings'] = self.pot
 		else:
-			#split the pot
-			potSplit=self.pot / len(winners)
-			print("Pot split between: ")
+			#split the pot-TO FINISH
+			#OH LORD HELP US, CE BO TO DELALO
+			mainPot=0
+			sidePot=0
+			retVal=self.getMinBetAndSecondMinBetAndItsIndexes()
+			minBetIndex=retVal[0]
+			minBet=retVal[1]
+			secondMinIndex=retVal[2]
+			secondMinBet=retVal[3]
+			sidePotWinners=[]
+			for i in range(len(self.roundPlayers)):	#get main pot
+				#calculate mainPot
+				if(self.playerStatus[i] is not None):
+					mainPot+=minBet
+
+				#advanced black magic sidePot calculations
+				if(self.playerStatus[i] is not None and self.roundPlayers[i].currentBet > minBet):
+					sidePot+=(secondMinBet-minBet)
+					if(self.roundPlayers[i].currentBet>secondMinBet):
+						self.roundPlayers[i].returnMoney((self.roundPlayers[i].currentBet-secondMinBet))
+						sidePotWinners.push(i)
+						self.roundPlayers[i].currentBet=secondMinBet #needed?
+			
+			if(len(winners)==0):
+				mainPotSplit=mainPot
+			else:
+				mainPotSplit=mainPot/len(winners)
+			if(len(sidePotWinners)==0):
+				sidePotSplit=sidePot
+				sidePotWinners=winners
+			else:
+				sidePotSplit=sidePot/len(sidePotWinners)
+			
+			for j in range(len(winners)):
+				if(self.roundPlayers[j].currentBet==minBet):
+					gameObject.players[winners[j]].money+=mainPotSplit
+				if(self.roundPlayers[j].currentBet > minBet):
+					gameObject.players[winners[j]].money+=sidePotSplit
+
 			for p in winners:
-				gameObject.players[winnerIndex].money+=potSplit
-				print("Player " + str(winners[0]) + " ")
+				earnings=mainPotSplit
 				data['playerSid'].append(gameObject.players[p])
-				data['earnings'].append(potSplit)	#TODO edge cases kot so all in pa premalo dnara
+				if(p in sidePotWinners):
+					earnings+=sidePotSplit
+				data['earnings'].append(earnings)
+
+			#split the pot-DEPRECATED
+
+			#potSplit=self.pot / len(winners)
+			#print("Pot split between: ")
+			#for p in winners:
+			#	gameObject.players[winnerIndex].money+=potSplit
+			#	print("Player " + str(winners[0]) + " ")
+			#	data['playerSid'].append(gameObject.players[p])
+			#	data['earnings'].append(potSplit)	#TODO edge cases kot so all in pa premalo dnara
 		
 		for player in gameObject.players:
 			data['data']['playerSid'].append(player.id)
@@ -463,7 +523,8 @@ class Player:
 		self.hand = []
 		self.money = moneyInit
 		self.currentBet = 0
-
+		self.allIn=False
+		self.allInDifference=0
 		self.id = user['sid']
 		self.socket = user['socket']
 
@@ -477,11 +538,20 @@ class Player:
 		if(ammount <= 0):
 			return False
 		else:
-			self.money -= (ammount - self.currentBet)
-			roundObject.pot += (ammount - self.currentBet)
-			self.currentBet = ammount
+			if(self.money<=0 or ammount>self.money):
+				roundObject.pot += money
+				self.currentBet += money
+				self.allIn=True
+				self.allInDifference=(ammount-money)
+				self.money=0
+			else:
+				self.money -= (ammount - self.currentBet)
+				roundObject.pot += (ammount - self.currentBet)
+				self.currentBet = ammount
 			return True
 
+	def returnMoney(self, ammount):	#return money in case of pot splitting; the minimum all in bet is used for mainPot, the second min bet is used for side pot, the 'overbet' of the other players is returned
+		self.money+=ammount
 # def main():
 #     gameInstance = Game(2)
 #     gameInstance.addPlayer(Player(1000, 0))
