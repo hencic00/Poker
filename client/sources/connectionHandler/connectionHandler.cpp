@@ -81,7 +81,7 @@ void connectionHandler::woodoo()
 
 QJsonObject connectionHandler::signUp(QString userName, QString email, QString password)
 {
-	QString hello = "{\"username\": \"plesJesus1\", \"password\": \"" + password + "\", \"email\": \"" + email + "\", \"agenda\": \"register\"}";
+	QString hello = "{\"username\": \"" + userName + "\", \"password\": \"" + password + "\", \"email\": \"" + email + "\", \"agenda\": \"register\"}";
 	int length = hello.length();
 	int length1 = 0;
 
@@ -97,9 +97,6 @@ QJsonObject connectionHandler::signUp(QString userName, QString email, QString p
 	std::cout << email.toStdString().c_str() << std::endl;
 	contentArs[1] = password.toStdString().c_str();
 
-	// char* request = genRequest("sources/connectionHandler/signUpRequest.json", contentArs, 2);
-	// printf("%s", email.toStdString().c_str());
-
 	send(sock , (char*) &length1 , 4 , 0 );
 	send(sock , hello.toStdString().c_str(), length , 0 );
 
@@ -113,7 +110,89 @@ QJsonObject connectionHandler::signUp(QString userName, QString email, QString p
 	responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
 	responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
 
-	char* responseMsg = (char*) calloc(responseLength1, 1);
+	char* responseMsg = (char*) calloc(responseLength1 + 1, 1);
+
+	recv(sock, responseMsg, responseLength1, 0);
+
+	QJsonParseError err;
+	QJsonDocument doc = QJsonDocument::fromJson(responseMsg, &err);
+	QJsonObject obj = doc.object();
+
+	return obj;
+}
+
+QJsonObject connectionHandler::login(QString email, QString password)
+{
+	QString request = "{\"agenda\":\"login\", \"email\":\"" + email + "\", \"password\":\"" + password + "\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	woodoo();
+
+	const char *contentArs[2];
+	contentArs[0] = email.toStdString().c_str();
+	std::cout << email.toStdString().c_str() << std::endl;
+	contentArs[1] = password.toStdString().c_str();
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+
+	int responseLength = 0;
+	int responseLength1 = 0;
+
+
+	recv(sock, (char*) &responseLength, 4, 0);
+	responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
+	responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
+	responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
+	responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
+
+	char* responseMsg = (char*) calloc(responseLength1 + 1, 1);
+
+	recv(sock, responseMsg, responseLength1, 0);
+
+	QJsonParseError err;
+	QJsonDocument doc = QJsonDocument::fromJson(responseMsg, &err);
+	QJsonObject obj = doc.object();
+
+	return obj;
+}
+
+QJsonObject connectionHandler::logout(QString userId)
+{
+	QString request = "{\"agenda\":\"logout\", \"userId\":\"" + userId + "\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	woodoo();
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+
+	int responseLength = 0;
+	int responseLength1 = 0;
+
+
+	recv(sock, (char*) &responseLength, 4, 0);
+	responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
+	responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
+	responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
+	responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
+
+	char* responseMsg = (char*) calloc(responseLength1 + 1, 1);
+
 
 	recv(sock, responseMsg, responseLength1, 0);
 

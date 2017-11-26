@@ -1,3 +1,6 @@
+#ifndef SERVERHANDLER
+#define SERVERHANDLER
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>
@@ -34,4 +37,8 @@ class connectionHandler
     public:
         connectionHandler();
         QJsonObject signUp(QString userName, QString email, QString password);
+        QJsonObject login(QString email, QString password);
+        QJsonObject logout(QString userId);
 };
+
+#endif

@@ -15,10 +15,9 @@
 #include "signUpPage.h"
 
 
+
 signUpPage::signUpPage(QWidget *parent):QFrame(parent)
 {			 
-
-	server = new connectionHandler();
 	initUI();
 }
 
@@ -40,26 +39,36 @@ void signUpPage::initUI()
 	hbox2->addStretch(1);
 
 
-	email = new QLineEdit();
-	email->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	email->setStyleSheet("margin-bottom: 20px; padding: 30px;");
-	email->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
-	email->setFont(font);
+	emailInput = new QLineEdit();
+	emailInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	emailInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	emailInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	emailInput->setFont(font);
 	QRegExp re("[a-z0-9._%+-]*@?[a-z0-9.-]*\\.?[a-z]*");
 	QRegExpValidator *validator = new QRegExpValidator(re, this);
-	email->setValidator(validator);
-	email->setPlaceholderText("E-mail");
+	emailInput->setValidator(validator);
+	emailInput->setPlaceholderText("E-mail");
 
-	password = new QLineEdit();
-	password->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	password->setStyleSheet("margin-bottom: 20px; padding: 30px;");
-	password->setFont(font);
-	password->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	userNameInput = new QLineEdit();
+	userNameInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	userNameInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	userNameInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	userNameInput->setFont(font);
+	QRegExp re2("[a-z0-9]*");
+	QRegExpValidator *validator2 = new QRegExpValidator(re2, this);
+	userNameInput->setValidator(validator2);
+	userNameInput->setPlaceholderText("User name");
+
+	passwordInput = new QLineEdit();
+	passwordInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	passwordInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	passwordInput->setFont(font);
+	passwordInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
 	QRegExp re1("/^[\x21-\x7E]+$/");
 	QRegExpValidator *validator1 = new QRegExpValidator(re, this);
-	password->setEchoMode(QLineEdit::Password);
-	password->setValidator(validator1);
-	password->setPlaceholderText("Password");
+	passwordInput->setEchoMode(QLineEdit::Password);
+	passwordInput->setValidator(validator1);
+	passwordInput->setPlaceholderText("Password");
 
 
 	passwordRe = new QLineEdit();
@@ -91,6 +100,18 @@ void signUpPage::initUI()
 	signUpButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	connect(signUpButton, &QPushButton::clicked, this, &signUpPage::applyButtonClicked);
 
+	QFont font1;
+	font1.setPixelSize(20);
+	alertLabel = new QLabel(this);
+	QSizePolicy sp_retain = alertLabel->sizePolicy();
+	sp_retain.setRetainSizeWhenHidden(true);
+	alertLabel->setSizePolicy(sp_retain);
+	alertLabel->setText("Fields are empty");
+	alertLabel->setFont(font);
+	alertLabel->setStyleSheet("color : #C73B3B");
+	alertLabel->setAlignment(Qt::AlignCenter);
+	alertLabel->setVisible(false);
+
 
 	hbox->addWidget(backButton);
 	hbox->addWidget(signUpButton);
@@ -102,8 +123,9 @@ void signUpPage::initUI()
 	vbox->setSpacing(0);
 
 	
-	vbox->addWidget(email);
-	vbox->addWidget(password);
+	vbox->addWidget(emailInput);
+	vbox->addWidget(userNameInput);
+	vbox->addWidget(passwordInput);
 	vbox->addWidget(passwordRe);
 	vbox->addLayout(hbox);
 
@@ -116,6 +138,8 @@ void signUpPage::initUI()
 	vbox4->addLayout(hbox2);
 	vbox4->addStretch(2);
 	vbox4->addLayout(hbox1);
+	vbox4->addStretch(1);
+	vbox4->addWidget(alertLabel);
 	vbox4->addStretch(6);
 
 	this->setLayout(vbox4);
@@ -123,26 +147,39 @@ void signUpPage::initUI()
 
 void signUpPage::applyButtonClicked()
 {
-	if (email->text().length() == 0 || password->text().length() == 0 || passwordRe->text().length() == 0)
+	if (emailInput->text().length() == 0 || passwordInput->text().length() == 0 || passwordRe->text().length() == 0)
 	{
-		std::cout << "fields empty" << std::endl;
+		alertLabel->setText("Some fields are empty");
+		alertLabel->setVisible(true);
 	}
-	else if (password->text() != passwordRe->text())
+	else if (passwordInput->text() != passwordRe->text())
 	{
 		std::cout << "passwords do not match" << std::endl;
+
+		alertLabel->setText("Passwords do not match");
+		alertLabel->setVisible(true);
 	}
 	else
 	{
-		QJsonObject obj = server->signUp(email->text(), email->text(), password->text());
+		QJsonObject obj = server->signUp(userNameInput->text(), emailInput->text(), passwordInput->text());
 		QJsonValue val = obj.value("status");
-		
+
 		if (val.toString() == "emailTaken")
 		{
-			std::cout << "email taken" << std::endl;
+			alertLabel->setText("Email already in use");
+			alertLabel->setVisible(true);
 		}
 		else
 		{
-			std::cout << "Welcome!" << std::endl;
+			QJsonValue val1 = obj.value("userId");
+
+			strcpy(email, emailInput->text().toStdString().c_str());
+			strcpy(userName, userNameInput->text().toStdString().c_str());
+			strcpy(userId, val1.toString().toStdString().c_str());
+
+			emit navigateTo("Loading", 2);
+
+			alertLabel->setVisible(false);
 		}
 	}
 
@@ -151,4 +188,5 @@ void signUpPage::applyButtonClicked()
 void signUpPage::backButtonClicked()
 {
 	emit navigateTo("Login", 0);
+	alertLabel->setVisible(false);
 }

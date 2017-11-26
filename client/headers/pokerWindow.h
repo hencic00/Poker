@@ -4,8 +4,12 @@
 #include <QStyle>
 #include <QStackedWidget>
 #include <QTimer>
+#include <QCloseEvent>
 
 #include <string>
+
+#include "connectionHandler/connectionHandler.h"
+#include "userData.h"
 
 class pokerWindow : public QFrame
 {
@@ -18,9 +22,15 @@ class pokerWindow : public QFrame
 	private:
 		void initUI();
 		void setWindowGeometry();
+		void closeEvent(QCloseEvent *event);
 
 		QStackedWidget* stack;
 		QTimer *timer;
+
+		connectionHandler* server;
+		char userName[100];
+		char userId[100];
+		char email[100];
 
 	public slots:
 		void navigationRequestReceived(char* title, int index);

@@ -71,6 +71,7 @@ class ThreadedServer(object):
 						responseData['status'] = "allreadyLoggedIn"
 						responseData['data'] = userHash
 					else:
+						responseData['username'] = User.getUser(reqData['email'])[1]
 						responseData['status'] = "ok"
 						responseData['userId'] = str(uuid.uuid4())
 						users[responseData['userId']] = user
