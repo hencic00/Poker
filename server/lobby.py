@@ -41,7 +41,7 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 		resData['agenda'] = reqData['agenda']
 		if reqData['agenda'] == "ready":
 			lobbies[lobbyId]['users'][userSid]['ready'] = True
-			notifyEveryoneExcept(lobbies, lobbyId, "userReady", None, userSid)
+			notifyEveryoneExcept(lobbies, lobbyId, "userReady", {'userSid': userSid}, userSid)
 			while True:
 				time.sleep(3)
 				print "LOBBY {}: ready users {}/{}".format(lobbyId, readyUsersCount(lobbies[lobbyId]), len(lobbies[lobbyId]['users']))

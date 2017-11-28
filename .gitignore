@@ -5,3 +5,4 @@ client/mocTrash/sources/*
 client/.qmake.stash
 client/Projekt
 client/Makefile
+*.pyc
