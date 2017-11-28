@@ -1,0 +1,8 @@
+Opravljene naloge v 4. tednu:
+	- Začetna povezava s strežnikom
+	- Socket ki je zadolžen za komunikaicjo
+	- Ustrarjanje razreda, ki upravlja s tem socketom
+	- Ustvarjanje zahtev, ki se držijo dogovorjene strukture spročil
+	- Usklajevanje zapovrstja bytov (big-endian, little-endian)
+	- Interperetacija odgovorov
+	- Shranjevanje dodeljenjega id-ja uporabnika

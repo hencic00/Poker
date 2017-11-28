@@ -2,13 +2,16 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLineEdit>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QPushButton>
 #include <QRect>
 #include <iostream>
 #include <QSvgWidget>
+#include <QRegExp>
+#include <QRegExpValidator>
+#include <QJsonObject>
+
 
 
 #include "loginPage.h"
@@ -16,6 +19,9 @@
 loginPage::loginPage(QWidget *parent):QFrame(parent)
 {			 
 	initUI();
+
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(timeOut()));
 }
 
 loginPage::~loginPage()
@@ -36,19 +42,23 @@ void loginPage::initUI()
 	hbox2->addStretch(1);
 
 
-	QLineEdit* email = new QLineEdit();
-	email->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	email->setStyleSheet("margin-bottom: 20px; padding: 30px;");
-	email->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
-	email->setFont(font);
-	email->setPlaceholderText("E-mail");
+	emailInput = new QLineEdit();
+	emailInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	emailInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	QRegExp re("[a-z0-9._%+-]*@?[a-z0-9.-]*\\.?[a-z]*");
+	QRegExpValidator *validator = new QRegExpValidator(re, this);
+	emailInput->setValidator(validator);
+	emailInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	emailInput->setFont(font);
+	emailInput->setPlaceholderText("E-mail");
 
-	QLineEdit* password = new QLineEdit();
-	password->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	password->setStyleSheet("margin-bottom: 20px; padding: 30px;");
-	password->setFont(font);
-	password->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
-	password->setPlaceholderText("Password");
+	passwordInput = new QLineEdit();
+	passwordInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	passwordInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	passwordInput->setFont(font);
+	passwordInput->setEchoMode(QLineEdit::Password);
+	passwordInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	passwordInput->setPlaceholderText("Password");
 
 
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -70,6 +80,19 @@ void loginPage::initUI()
 	signUpButton->setIconSize(QSize(rec.height()*0.05, rec.height()*0.05));
 	connect(signUpButton, &QPushButton::clicked, this, &loginPage::signUpButtonClicked);
 
+
+	QFont font1;
+	font1.setPixelSize(20);
+	alertLabel = new QLabel(this);
+	QSizePolicy sp_retain = alertLabel->sizePolicy();
+	sp_retain.setRetainSizeWhenHidden(true);
+	alertLabel->setSizePolicy(sp_retain);
+	alertLabel->setText("Fields are empty");
+	alertLabel->setFont(font);
+	alertLabel->setStyleSheet("color : #C73B3B");
+	alertLabel->setAlignment(Qt::AlignCenter);
+	alertLabel->setVisible(false);
+
 	hbox->addWidget(loginButton);
 	hbox->addWidget(signUpButton);
 
@@ -80,8 +103,10 @@ void loginPage::initUI()
 	vbox->setSpacing(0);
 
 	
-	vbox->addWidget(email);
-	vbox->addWidget(password);
+	vbox->addWidget(emailInput);
+	vbox->addWidget(passwordInput);
+
+
 	vbox->addLayout(hbox);
 
 	hbox1->addStretch(1);
@@ -93,6 +118,8 @@ void loginPage::initUI()
 	vbox4->addLayout(hbox2);
 	vbox4->addStretch(2);
 	vbox4->addLayout(hbox1);
+	vbox4->addStretch(1);
+	vbox4->addWidget(alertLabel);
 	vbox4->addStretch(6);
 
 	this->setLayout(vbox4);
@@ -100,10 +127,54 @@ void loginPage::initUI()
 
 void loginPage::loginButtonClicked()
 {
-	emit navigateTo("Loading", 2);
+	if (emailInput->text().length() == 0 || passwordInput->text().length() == 0)
+	{
+		// std::cout << "fields empty" << std::endl;
+		alertLabel->setText("Some fields are empty");
+		alertLabel->setVisible(true);
+	}
+	else 
+	{
+		QJsonObject obj = server->login(emailInput->text(), passwordInput->text());
+
+		QJsonValue val = obj.value("status");
+
+		if (val.toString() == "ok")
+		{
+			alertLabel->setVisible(false);
+			QJsonValue val1 = obj.value("userId");
+			QJsonValue val2 = obj.value("username");
+
+			strcpy(email, emailInput->text().toStdString().c_str());
+			strcpy(userId, val1.toString().toStdString().c_str());
+			strcpy(userName, val2.toString().toStdString().c_str());
+
+			stack->setCurrentIndex(2);
+			timer->start(500);
+		}
+		else if(val.toString() == "nonExistentUser")
+		{
+			alertLabel->setText("Email or password do not match");
+			alertLabel->setVisible(true);
+		}
+		else if (val.toString() == "wrongPassword")
+		{
+			alertLabel->setText("Email or password do not match");
+			alertLabel->setVisible(true);
+		}
+		else{}
+	}
+
+}
+
+void loginPage::timeOut()
+{	
+	stack->setCurrentIndex(5);
+	timer->stop();
 }
 
 void loginPage::signUpButtonClicked()
 {
+	alertLabel->setVisible(false);
 	emit navigateTo("Sign up", 1);
 }

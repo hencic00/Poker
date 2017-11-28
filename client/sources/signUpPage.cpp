@@ -2,84 +2,19 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLineEdit>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QPushButton>
 #include <QRect>
 #include <iostream>
 #include <QSvgWidget>
-
-#include <stdio.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-
-#define PORT 9999
+#include <QRegExp>
+#include <QRegExpValidator>
+#include <QJsonObject>
 
 #include "signUpPage.h"
 
-void test()
-{
-	struct sockaddr_in address;
-    int sock = 0, valread;
-    struct sockaddr_in serv_addr;
 
-
-    char *hello = "{\"username\": \"plesJesus\", \"password\": \"plesJesus\", \"email\": \"plesJesus\", \"agenda\": \"register\"}";
-    int length = strlen(hello);
-
-    char buffer[1024] = {0};
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        printf("\n Socket creation error \n");
-    }
-  
-    memset(&serv_addr, '0', sizeof(serv_addr));
-  
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-      
-    // Convert IPv4 and IPv6 addresses from text to binary form
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
-    {
-        printf("\nInvalid address/ Address not supported \n");
-    }
-  
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        printf("\nConnection Failed \n");
-    }
-
-    send(sock , (char*) &length , 4 , 0 );
-    // send(sock , (char*) length , 4 , 0 );
-    // send(sock , (char*) length , 4 , 0 );
-    // send(sock , (char*) length , 4 , 0 );
-    send(sock , hello , length , 0 );
-
-    int responseLength = 0;
-    int responseLength1 = 0;
-
-
-    recv(sock, (char*) &responseLength, 4, 0);
-    responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
-    responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
-    responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
-    responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
-
-    std::cout << responseLength1 << std::endl;
-
-}
 
 signUpPage::signUpPage(QWidget *parent):QFrame(parent)
 {			 
@@ -104,25 +39,44 @@ void signUpPage::initUI()
 	hbox2->addStretch(1);
 
 
-	QLineEdit* email = new QLineEdit();
-	email->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	email->setStyleSheet("margin-bottom: 20px; padding: 30px;");
-	email->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
-	email->setFont(font);
-	email->setPlaceholderText("E-mail");
+	emailInput = new QLineEdit();
+	emailInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	emailInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	emailInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	emailInput->setFont(font);
+	QRegExp re("[a-z0-9._%+-]*@?[a-z0-9.-]*\\.?[a-z]*");
+	QRegExpValidator *validator = new QRegExpValidator(re, this);
+	emailInput->setValidator(validator);
+	emailInput->setPlaceholderText("E-mail");
 
-	QLineEdit* password = new QLineEdit();
-	password->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	password->setStyleSheet("margin-bottom: 20px; padding: 30px;");
-	password->setFont(font);
-	password->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
-	password->setPlaceholderText("Password");
+	userNameInput = new QLineEdit();
+	userNameInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	userNameInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	userNameInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	userNameInput->setFont(font);
+	QRegExp re2("[a-z0-9]*");
+	QRegExpValidator *validator2 = new QRegExpValidator(re2, this);
+	userNameInput->setValidator(validator2);
+	userNameInput->setPlaceholderText("User name");
+
+	passwordInput = new QLineEdit();
+	passwordInput->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	passwordInput->setStyleSheet("margin-bottom: 20px; padding: 30px;");
+	passwordInput->setFont(font);
+	passwordInput->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
+	QRegExp re1("/^[\x21-\x7E]+$/");
+	QRegExpValidator *validator1 = new QRegExpValidator(re, this);
+	passwordInput->setEchoMode(QLineEdit::Password);
+	passwordInput->setValidator(validator1);
+	passwordInput->setPlaceholderText("Password");
 
 
-	QLineEdit* passwordRe = new QLineEdit();
+	passwordRe = new QLineEdit();
 	passwordRe->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	passwordRe->setStyleSheet("margin-bottom: 20px; padding: 30px;");
 	passwordRe->setFont(font);
+	passwordRe->setEchoMode(QLineEdit::Password);
+	passwordRe->setValidator(validator1);
 	passwordRe->setFixedSize(rec.width() * 0.25, rec.height()*0.07);
 	passwordRe->setPlaceholderText("Retype password");
 
@@ -146,6 +100,18 @@ void signUpPage::initUI()
 	signUpButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 	connect(signUpButton, &QPushButton::clicked, this, &signUpPage::applyButtonClicked);
 
+	QFont font1;
+	font1.setPixelSize(20);
+	alertLabel = new QLabel(this);
+	QSizePolicy sp_retain = alertLabel->sizePolicy();
+	sp_retain.setRetainSizeWhenHidden(true);
+	alertLabel->setSizePolicy(sp_retain);
+	alertLabel->setText("Fields are empty");
+	alertLabel->setFont(font);
+	alertLabel->setStyleSheet("color : #C73B3B");
+	alertLabel->setAlignment(Qt::AlignCenter);
+	alertLabel->setVisible(false);
+
 
 	hbox->addWidget(backButton);
 	hbox->addWidget(signUpButton);
@@ -157,8 +123,9 @@ void signUpPage::initUI()
 	vbox->setSpacing(0);
 
 	
-	vbox->addWidget(email);
-	vbox->addWidget(password);
+	vbox->addWidget(emailInput);
+	vbox->addWidget(userNameInput);
+	vbox->addWidget(passwordInput);
 	vbox->addWidget(passwordRe);
 	vbox->addLayout(hbox);
 
@@ -171,6 +138,8 @@ void signUpPage::initUI()
 	vbox4->addLayout(hbox2);
 	vbox4->addStretch(2);
 	vbox4->addLayout(hbox1);
+	vbox4->addStretch(1);
+	vbox4->addWidget(alertLabel);
 	vbox4->addStretch(6);
 
 	this->setLayout(vbox4);
@@ -178,10 +147,46 @@ void signUpPage::initUI()
 
 void signUpPage::applyButtonClicked()
 {
-	test();
+	if (emailInput->text().length() == 0 || passwordInput->text().length() == 0 || passwordRe->text().length() == 0)
+	{
+		alertLabel->setText("Some fields are empty");
+		alertLabel->setVisible(true);
+	}
+	else if (passwordInput->text() != passwordRe->text())
+	{
+		std::cout << "passwords do not match" << std::endl;
+
+		alertLabel->setText("Passwords do not match");
+		alertLabel->setVisible(true);
+	}
+	else
+	{
+		QJsonObject obj = server->signUp(userNameInput->text(), emailInput->text(), passwordInput->text());
+		QJsonValue val = obj.value("status");
+
+		if (val.toString() == "emailTaken")
+		{
+			alertLabel->setText("Email already in use");
+			alertLabel->setVisible(true);
+		}
+		else
+		{
+			QJsonValue val1 = obj.value("userId");
+
+			strcpy(email, emailInput->text().toStdString().c_str());
+			strcpy(userName, userNameInput->text().toStdString().c_str());
+			strcpy(userId, val1.toString().toStdString().c_str());
+
+			emit navigateTo("Loading", 2);
+
+			alertLabel->setVisible(false);
+		}
+	}
+
 }
 
 void signUpPage::backButtonClicked()
 {
 	emit navigateTo("Login", 0);
+	alertLabel->setVisible(false);
 }
