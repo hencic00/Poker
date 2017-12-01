@@ -301,6 +301,8 @@ class Round:
 			#OH LORD HELP US, CE BO TO DELALO
 			mainPot=0
 			sidePot=0
+			leftoverMainPot=0
+			leftoverSidePot=0
 			retVal=self.getMinBetAndSecondMinBetAndItsIndexes()
 			minBetIndex=retVal[0]
 			minBet=retVal[1]
@@ -323,24 +325,56 @@ class Round:
 			if(len(winners)==0):
 				mainPotSplit=mainPot
 			else:
-				mainPotSplit=mainPot/len(winners)
+				mainPotSplit=math.floor(mainPot/len(winners))
+				leftoverMainPot=mainPot%len(winners)
 			if(len(sidePotWinners)==0):
 				sidePotSplit=sidePot
 				sidePotWinners=winners
 			else:
-				sidePotSplit=sidePot/len(sidePotWinners)
+				sidePotSplit=math.floor(sidePot/len(sidePotWinners))
+				leftoverSidePot=sidePot%len(sidePotWinners)
 			
 			for j in range(len(winners)):
 				if(self.roundPlayers[j].currentBet==minBet):
 					gameObject.players[winners[j]].money+=mainPotSplit
 				if(self.roundPlayers[j].currentBet > minBet):
 					gameObject.players[winners[j]].money+=sidePotSplit
+			#split leftover earnings amongst players (remainder at pot/ammountOfWinners; example=> 15/2=7=>remainder:1; first winners gets the leftover money)
+			#requires in-depth testing
+			mainLeftoverEarnings=[]
+			for p in winners:
+				mainLeftoverEarnings.append(0)
+			mainPotPI=0
+			while(leftoverMainPot>0):
+				mainLeftoverEarnings[mainPotPI]+=1
+				leftoverMainPot-=1
+				mainPotPI+=1
+				if(mainPotPI>len(winners)):
+					mainPotPI=0
+			sideLeftoverEarnings=[]
+			for p in sidePotWinners:
+				sideLeftoverEarnings.addpend(0)
+			sidePotPI=0
+			while(leftoverSidePot>0):
+				sideLeftoverEarnings[sidePotPI]+=1
+				leftoverSidePot-=1
+				sidePotPI+=1
+				if(sidePotPI>len(sidePotWinners)):
+					sidePotPI=0
 
+			mainPotPI2=0
+			sidePotPI2=0
 			for p in winners:
 				earnings=mainPotSplit
+				if(mainPotPI2<len(winners)):
+					earnings+=mainLeftoverEarnings[mainPotPI2]
+					mainPotPI2+=1
 				data['data']['winnerSid'].append(gameObject.players[p].id)
 				if(p in sidePotWinners):
 					earnings+=sidePotSplit
+					if(sidePotPI2<len(sideLeftoverEarnings)):
+						earnings+=sideLeftoverEarnings[sidePotPI2]
+						sidePotPI2+=1
 				data['data']['earnings'].append(earnings)
 
 			#split the pot-DEPRECATED
