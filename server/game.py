@@ -93,6 +93,9 @@ class Round:
 	 
 		for p in self.roundPlayers: #empty player hands
 			p.hand = []
+			p.currentBet=0
+			self.allIn=False
+			self.allInDifference=0
 
 		#self.board[:]=[]
 		#del self.board[:]
@@ -387,6 +390,7 @@ class Round:
 		self.board=[]
 		self.pot=0
 		self.sidePot=0
+		print("MAIN POT: "+ str(self.pot)+ " SIDE POT: "+ str(self.sidePot))
 		playerCount = len(self.roundPlayers)
 		if(playerCount <= 1): #check if there are more than 1 players in round
 			return False #TODO implementiraj ce ni nobenega ker so leavali
@@ -409,7 +413,7 @@ class Round:
 
 		#Preflop phase
 		print("--Preflop--")
-		result = self.preflopPhase(gameObject, (gameObject.roundCounter % len(self.roundPlayers)))  #TUSNOSTAL
+		result = self.preflopPhase(gameObject, (gameObject.roundCounter % len(self.roundPlayers)))
 		#check if all but 1 folded else go to next phase      
 		if(not result): #only 1 player remains active; end game
 			lastPlayerIndex=self.getLastPlayer()
