@@ -8,7 +8,7 @@ import comms
 class Game:
 	def __init__(self, lobby, minBetInit):
 		self.lobby = lobby
-
+		self.roundObject=None
 		self.cardRankLUT = dict()
 		self.cardRankLUT = {
 			0 : '2',
@@ -65,16 +65,16 @@ class Game:
 				return True
 			return False
 
-	def startNewRound(self): #"Kucerov TODO: po pointerah se prenasa vse. Nisem jaz noter v roundu tu pokvaril cesa?"
+	def startNewRound(self):
 		if(len(self.players) > 1):
+			self.roundObject=Round(self)
 			while(True):
-				print("------------------")
-				print("ROUND " + str(self.roundCounter) + "START")
-				roundObject = Round(self)
-				result=roundObject.startRound(self)
-				print("RESULT: " + str(result))
-				roundObject.reset(self)
-				roundObject=None
+				if(len(self.players) > 1):	#check if players in game are more than 1; sam pac ne mors spilat, duh
+					print("ROUND " + str(self.roundCounter) + "START")
+					result=self.roundObject.startRound(self)
+					self.roundObject.reset(self)
+				else:
+					return False
 		else:
 			return False
 
@@ -94,6 +94,10 @@ class Round:
 		for p in self.roundPlayers: #empty player hands
 			p.hand = []
 
+		#self.board[:]=[]
+		#del self.board[:]
+		#self.board=[]
+
 	def reset(self, gameObject):
 		self.__init__(gameObject)
 		
@@ -103,31 +107,6 @@ class Round:
 		for p in range(0, playerCount):   #init. playerStatus array-all to false, except those who folded (set to None)
 			if(self.playerStatus[p]!=None):
 				self.playerStatus[p]=False
-		# while(True):
-		# 	if(self.countActivePlayers(playerCount)==1):    #check if more than 1 player is still active (un-folded)
-		# 		return False
-		# 	if(self.playerStatus[currentPI]==None): #skip player that folded
-		# 		currentPI=self.nextPlayer(currentPI, playerCount)
-		# 	else:
-		# 		print("Current min. bet: " + str(self.currentMinBet) + "\r\nCurrent pot: " + str(self.pot))
-		# 		if(self.checkArray(self.playerStatus)):
-		# 			break
-		# 		print(" Player "+str(currentPI))
-		# 		action = input(" Your current bet: " + str(self.roundPlayers[currentPI].currentBet) + " \r\nSelect action: R-Raise, C-Check, F-Fold\r\n")
-		# 		if(action=="C"):
-		# 			self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
-		# 			self.playerStatus[currentPI]=True
-		# 			currentPI=self.nextPlayer(currentPI, playerCount)
-		# 		elif(action=="R"):
-		# 			inputRaise = input("Current min. bet: " + str(self.currentMinBet) + " How much do you want to raise?\r\n")
-		# 			self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
-		# 			self.playerStatus[currentPI]=True
-		# 			self.resetPlayerStatusAfterRaise(currentPI)
-		# 			self.currentMinBet+=inputRaise
-		# 			currentPI=self.nextPlayer(currentPI, playerCount)
-		# 		elif(action=="F"):
-		# 			self.playerStatus[currentPI]=None
-		# 			currentPI=self.nextPlayer(currentPI, playerCount)
 		while(True):
 			if(self.countActivePlayers(playerCount)==1):    #check if more than 1 player is still active (un-folded)
 				return False
@@ -138,8 +117,7 @@ class Round:
 				if(self.checkArray(self.playerStatus)):
 					break
 				print(" Player "+str(currentPI))
-				#action = input(" Your current bet: " + str(self.roundPlayers[currentPI].currentBet) + " \r\nSelect action: R-Raise, C-Check, F-Fold\r\n")
-				#tell the player its his turn
+
 				data = {}
 				data['agenda'] = "yourTurn"
 				#TODO check for bad input
@@ -160,7 +138,6 @@ class Round:
 					currentPI=self.nextPlayer(currentPI, playerCount)
 				elif(action=="raise"):
 					#TODO check da raisa vec kot je min SERVER SIDE
-					#inputRaise = input("Current min. bet: " + str(self.currentMinBet) + " How much do you want to raise?\r\n")
 					inputRaise = int(rec['data'])
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
 					self.playerStatus[currentPI]=True
@@ -168,7 +145,6 @@ class Round:
 					self.currentMinBet+=inputRaise
 
 					print("RAISE: {}".format(inputRaise))
-					#notify everyone player raised
 					data = {}
 					data['agenda'] = "playerRaise"
 					data['data'] = [gameObject.players[currentPI].id, inputRaise] #player ki je raisal: SID, stevilo
@@ -217,8 +193,7 @@ class Round:
 				if(self.checkArray(self.playerStatus)):
 					break
 				print(" Player "+str(currentPI))
-				#action = input(" Your current bet: " + str(self.roundPlayers[currentPI].currentBet) + " \r\nSelect action: R-Raise, C-Check, F-Fold\r\n")
-				#tell the player its his turn
+
 				data = {}
 				data['agenda'] = "yourTurn"
 				#TODO check for bad input
@@ -238,7 +213,6 @@ class Round:
 					currentPI=self.nextPlayer(currentPI, playerCount)
 				elif(action=="raise"):
 					#TODO check da raisa vec kot je min SERVER SIDE
-					#inputRaise = input("Current min. bet: " + str(self.currentMinBet) + " How much do you want to raise?\r\n")
 					inputRaise = int(rec['data'])
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
 					self.playerStatus[currentPI]=True
@@ -310,15 +284,15 @@ class Round:
 	def endRound(self, gameObject, winners):
 		#winners=[0,1]
 		data = {}
-		data['agenda'] = "playerWon"
+		data['agenda'] = "playerWonRound"
 		data['data'] = {'winnerSid': [], 'earnings': [], 'playerSid':[], 'playerHands':[], 'currentCash':[]}
 
 		if(len(winners)==1):
 			#only 1 winner
 			gameObject.players[winners[0]].money+=self.pot
 			print("Player " + str(winners[0]) + " WON")
-			data['winnerSid'] = gameObject.players[winners[0]].id	#front checks len(data['playerSid'])
-			data['earnings'] = self.pot
+			data['data']['winnerSid'] = gameObject.players[winners[0]].id	#front checks len(data['playerSid'])
+			data['data']['earnings'] = self.pot
 		else:
 			#split the pot-TO FINISH
 			#OH LORD HELP US, CE BO TO DELALO
@@ -361,10 +335,10 @@ class Round:
 
 			for p in winners:
 				earnings=mainPotSplit
-				data['playerSid'].append(gameObject.players[p])
+				data['data']['winnerSid'].append(gameObject.players[p].id)
 				if(p in sidePotWinners):
 					earnings+=sidePotSplit
-				data['earnings'].append(earnings)
+				data['data']['earnings'].append(earnings)
 
 			#split the pot-DEPRECATED
 
@@ -410,6 +384,9 @@ class Round:
 		return winnerIndexes
 				
 	def startRound(self, gameObject):
+		self.board=[]
+		self.pot=0
+		self.sidePot=0
 		playerCount = len(self.roundPlayers)
 		if(playerCount <= 1): #check if there are more than 1 players in round
 			return False #TODO implementiraj ce ni nobenega ker so leavali

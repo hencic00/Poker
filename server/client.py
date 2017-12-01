@@ -45,8 +45,9 @@ def lobbyLoop(data, sock):
 							board += rec['data']
 							print("BOARD: {}".format(board))
 							pass
-						elif rec['agenda'] == "turnEnd": #???
-							pass
+						elif rec['agenda'] == "playerWonRound": #???
+							board=[]
+							
 
 		elif userInput == "2":
 			data = {}
