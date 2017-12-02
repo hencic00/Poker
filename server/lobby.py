@@ -120,7 +120,7 @@ def getLobbyData(lobbies, lobbyId): #TODO
 	users = []
 	for usr in lobbies[lobbyId]['users'].values():
 		users.append({'userSid':usr['sid'], 'username':User.getUsername(usr['sid'])})
-	lobbyData = {'id' : lobbies[lobbyId]['id'], 'name': lobbies[lobbyId]['name'], 'users': users} #todo names?
+	lobbyData = {'id' : lobbies[lobbyId]['id'], 'name': lobbies[lobbyId]['name'], 'users': users}
 	return lobbyData
 
 def startGame(lobbies, lobbyId):
@@ -128,14 +128,20 @@ def startGame(lobbies, lobbyId):
 	from game import Game
 	gameObj = Game(lobbies[lobbyId], 5);
 	# print(gameObj.startGame())
-	finishGame(lobbies, lobbyId)
+	print("GAME OVER")
+	# finishGame(lobbies, lobbyId)
 
 def finishGame(lobbies, lobbyId):
-	print("GAME OVER")
-	#vsakemu poslji da je konec
+	import GameModel
+	#vsakemu poslji da je konec?
 
 	#database magic
+	GameModel.insertPostGameData()
 
-	#foreach close socket
+	#close all socket connections
+	for usr in lobbies[lobbyId]['users']:
+		print "closing socket for {}.".format(address)
+		usr['socket'].close()
 
-	#del lobbyies[lobbyId]
+	#remove lobby from lobby list
+	del lobbyies[lobbyId]
