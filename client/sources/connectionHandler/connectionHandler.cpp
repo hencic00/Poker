@@ -202,3 +202,86 @@ QJsonObject connectionHandler::logout(QString userId)
 
 	return obj;
 }
+
+QJsonObject connectionHandler::getLobbies(QString userId)
+{
+	QString request = "{\"agenda\":\"getLobbies\", \"userId\":\"" + userId + "\"}";
+	std::cout << request.toStdString() << std::endl;
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	woodoo();
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+
+	int responseLength = 0;
+	int responseLength1 = 0;
+
+
+	recv(sock, (char*) &responseLength, 4, 0);
+	responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
+	responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
+	responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
+	responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
+
+	char* responseMsg = (char*) calloc(responseLength1 + 1, 1);
+
+
+	recv(sock, responseMsg, responseLength1, 0);
+
+	std::cout << responseMsg << std::endl;
+
+	QJsonParseError err;
+	QJsonDocument doc = QJsonDocument::fromJson(responseMsg, &err);
+	QJsonObject obj = doc.object();
+
+	return obj;
+}
+
+QJsonObject connectionHandler::createLobby(QString userId)
+{
+	QString request = "{\"agenda\":\"createLobby\", \"userId\":\"" + userId + "\", \"lobbyName\":\"test\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	woodoo();
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+
+	int responseLength = 0;
+	int responseLength1 = 0;
+
+
+	recv(sock, (char*) &responseLength, 4, 0);
+	responseLength1 |= ((responseLength >> 3 * 8) & 0x000000ff);
+	responseLength1 |= ((responseLength >> 1 * 8) & 0x0000ff00);
+	responseLength1 |= ((responseLength << 1 * 8) & 0x00ff0000);
+	responseLength1 |= ((responseLength << 3 * 8) & 0xff000000);
+
+	char* responseMsg = (char*) calloc(responseLength1 + 1, 1);
+
+
+	recv(sock, responseMsg, responseLength1, 0);
+
+	std::cout << responseMsg << std::endl;
+
+	QJsonParseError err;
+	QJsonDocument doc = QJsonDocument::fromJson(responseMsg, &err);
+	QJsonObject obj = doc.object();
+
+	return obj;
+}

@@ -12,13 +12,15 @@
 #include "loginPage.h"
 #include "signUpPage.h"
 #include "loadingPage.h"
-#include "lobbyPage.h"
+#include "lobbiesPage.h"
 #include "playPage.h"
 #include "indexPage.h"
+#include "lobbyPage.h"
 
 pokerWindow::pokerWindow(QWidget *parent):QFrame(parent)
 {			 
 	server = new connectionHandler();
+	server1 = new serverHandler();
 
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(nekaj()));
@@ -56,8 +58,12 @@ void pokerWindow::initUI()
 	loadingPage* loading = new loadingPage();
 	connect(loading, &loadingPage::navigateTo, this, &pokerWindow::navigationRequestReceived);
 
-	lobbyPage* lobby = new lobbyPage();
-	connect(lobby, &lobbyPage::navigateTo, this, &pokerWindow::navigationRequestReceived);
+	lobbiesPage* lobbies = new lobbiesPage();
+	lobbies->server = server;
+	lobbies->userId = userId;
+	lobbies->server1 = server1;
+	lobbies->stack = stack;
+	connect(lobbies, &lobbiesPage::navigateTo, this, &pokerWindow::navigationRequestReceived);
 
 	playPage* play = new playPage();
 
@@ -68,13 +74,17 @@ void pokerWindow::initUI()
 	index->server = server;
 	index->stack = stack;
 
+	lobbyPage* lobby = new lobbyPage();
+	lobby->server = server1;
+
 	
 	stack->addWidget(login);
 	stack->addWidget(signUp);
 	stack->addWidget(loading);
-	stack->addWidget(lobby);
+	stack->addWidget(lobbies);
 	stack->addWidget(play);
 	stack->addWidget(index);
+	stack->addWidget(lobby);
 
 
 

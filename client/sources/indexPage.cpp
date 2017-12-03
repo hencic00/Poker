@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "indexPage.h"
+#include "lobbiesPage.h"
 
 indexPage::indexPage(QWidget *parent):QFrame(parent)
 {			 
@@ -42,10 +43,11 @@ void indexPage::initUI()
 	welcomeBanner->setAlignment(Qt::AlignCenter);
 	welcomeBanner->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
 
-	QPushButton* backButton = new QPushButton("  Join lobby  ");
-	backButton->setFont(font);
-	backButton->setFixedSize(rec.width() * 0.3, rec.height()*0.09);
-	backButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	QPushButton* joinLobbyButton = new QPushButton("  Join lobby  ");
+	joinLobbyButton->setFont(font);
+	joinLobbyButton->setFixedSize(rec.width() * 0.3, rec.height()*0.09);
+	joinLobbyButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+	connect(joinLobbyButton, &QPushButton::clicked, this, &indexPage::joinLobbyButtonClicked);
 
 	QPushButton* logoutButton = new QPushButton("  Logout  ");
 	logoutButton->setFont(font);
@@ -57,7 +59,7 @@ void indexPage::initUI()
 	vbox->addStretch(6);
 	vbox->addWidget(welcomeBanner);
 	vbox->addStretch(1);
-	vbox->addWidget(backButton);
+	vbox->addWidget(joinLobbyButton);
 	vbox->addWidget(logoutButton);
 	vbox->addStretch(6);
 
@@ -94,4 +96,11 @@ void indexPage::logoutButtonPressed()
 		userName[0] = '\0';
 		userId[0] = '\0';
 	}
+}
+
+void indexPage::joinLobbyButtonClicked()
+{
+	stack->setCurrentIndex(3);
+	
+	((lobbiesPage*)stack->widget(3))->stackFocus();
 }

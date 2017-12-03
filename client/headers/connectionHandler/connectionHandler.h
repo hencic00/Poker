@@ -39,6 +39,8 @@ class connectionHandler
         QJsonObject signUp(QString userName, QString email, QString password);
         QJsonObject login(QString email, QString password);
         QJsonObject logout(QString userId);
+        QJsonObject getLobbies(QString userId);
+        QJsonObject createLobby(QString userId);
 };
 
 #endif

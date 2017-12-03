@@ -1,12 +1,14 @@
 Narejeno:
 	Dokončal sem sign up (0.5h).
 	Naredil sem login (1.5h).
+	Naredil odjavo (0.5h).
 	Če zapreš app, ko si login-an te avtomatsko logout-a (1h).
 	Naredil sem osnoven index page, kjer se ti prikaže tvoj username (1h).
 	Dodal opozorila na login page in signup page. Primeri(1h):
 		-- Email je že v uporabi
 		-- Geslo ni pravilno
 	Code maintenance (1h).
+
 
 Načrt:
 	Ustvarjanje loby-ev.

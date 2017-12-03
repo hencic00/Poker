@@ -8,12 +8,12 @@ INCLUDEPATH += .
 
 # Input
 HEADERS += ./headers/pokerWindow.h ./headers/loginPage.h ./headers/signUpPage.h ./headers/loadingPage.h
-HEADERS += ./headers/lobbyPage.h ./headers/playPage.h ./headers/renderWidget.h ./headers/connectionHandler/connectionHandler.h
-HEADERS += ./headers/indexPage.h
+HEADERS += ./headers/lobbiesPage.h ./headers/playPage.h ./headers/renderWidget.h ./headers/connectionHandler/connectionHandler.h
+HEADERS += ./headers/indexPage.h ./headers/connectionHandler/serverHandler.h ./headers/lobbyPage.h ./headers/task.h
 
 SOURCES += main.cpp ./sources/pokerWindow.cpp ./sources/loginPage.cpp ./sources/signUpPage.cpp ./sources/loadingPage.cpp
-SOURCES += ./sources/lobbyPage.cpp ./sources/playPage.cpp ./sources/renderWidget.cpp ./sources/connectionHandler/connectionHandler.cpp
-SOURCES += ./sources/indexPage.cpp
+SOURCES += ./sources/lobbiesPage.cpp ./sources/playPage.cpp ./sources/renderWidget.cpp ./sources/connectionHandler/connectionHandler.cpp
+SOURCES += ./sources/indexPage.cpp ./sources/connectionHandler/serverHandler.cpp ./sources/lobbyPage.cpp ./sources/task.cpp
 
 
 QT += widgets 

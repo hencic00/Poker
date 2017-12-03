@@ -23,11 +23,8 @@ class indexPage : public QFrame
 		char* email;
 
 		QTimer* timer;
-
 		QStackedWidget* stack;
-
 		connectionHandler* server;
-
 		QLabel *welcomeBanner;
 
 	private:
@@ -38,5 +35,6 @@ class indexPage : public QFrame
 	public slots:
 		void timeOut();
 		void logoutButtonPressed();
+		void joinLobbyButtonClicked();
 
 };
