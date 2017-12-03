@@ -29,7 +29,7 @@ Communication JSON format:
   
 **"getLobbies"**:
 - to server:  
-  - {agenda="getLobbies"}  
+  - {agenda="getLobbies", "userId": "0810b7b0-9ba9-404b-b9ce-39e753ac2eaa"}  
 - from server:	
   - {agenda="getLobbies", data=[[{'users': [{'userSid': 5, 'username': 'asd'}], 'name': 'LOBBYNAME', 'id': '22d98e1c-7ac9-4a5b-9179-df17b0750387'},...]}  
 
@@ -61,6 +61,12 @@ Communication JSON format:
   - {"agenda": "leaveLobby"}
 - from server:	
   - {"status": "ok", "agenda": "leaveLobby"}
+
+**"ready"**:
+- to server:	
+  - {"agenda": "ready"}
+- from server:	
+  - {"status": "ok", "agenda": "ready"}
   
 **"gameStart"**:
 - from server:	
