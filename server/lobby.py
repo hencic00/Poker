@@ -40,6 +40,8 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 		resData = {}
 		resData['agenda'] = reqData['agenda']
 		if reqData['agenda'] == "ready":
+			resData['status'] = "ok"
+			comms.send(clientSock, resData)
 			lobbies[lobbyId]['users'][userSid]['ready'] = True
 			notifyEveryoneExcept(lobbies, lobbyId, "userReady", {'userSid': userSid}, userSid)
 			while True:
@@ -48,7 +50,7 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 				if readyUsersCount(lobbies[lobbyId]) == len(lobbies[lobbyId]['users']) and len(lobbies[lobbyId]['users']) > 1: #atleast 2 players
 					#game logic is in first users thread
 					if(userSid == lobbies[lobbyId]['users'][lobbies[lobbyId]['users'].keys()[0]]['sid']): #try and fire me bois
-						print "starting game from user {} thread".format(userSid)
+						print "Starting game from user {} thread.".format(userSid)
 						#start game
 						print "LOBBY {}: Game started".format(lobbies[lobbyId]['id'])
 						startGame(lobbies, lobbyId)
