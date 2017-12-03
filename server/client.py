@@ -16,6 +16,7 @@ def lobbyLoop(data, sock):
 			data = {}
 			data['agenda'] = "ready"
 			comms.send(sock, data)
+			received = comms.receive(sock)
 			while True:
 				received = comms.receive(sock) #<- game start
 				if received['agenda'] == 'gameStart':
