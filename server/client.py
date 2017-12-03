@@ -28,7 +28,7 @@ def lobbyLoop(data, sock):
 						if rec['agenda'] == "BSblind":
 							pass
 						elif rec['agenda'] == "yourTurn":
-							userInput = raw_input("\nGame actions:\nRaise\t\t(1)\nFold\t\t(2)\nCheck\t\t(3)\n~> ")
+							userInput = raw_input("\nGame actions:\nRaise\t\t(1)\nFold\t\t(2)\nCheck\t\t(3)\nLeave\t\t(4)\n~> ")
 							if userInput == "1":
 								data = {}
 								data['agenda'] = "raise"
@@ -41,6 +41,10 @@ def lobbyLoop(data, sock):
 							elif userInput == "3":
 								data = {}
 								data['agenda'] = "check"
+								comms.send(sock, data)
+							elif userInput == "4":
+								data = {}
+								data['agenda'] = "leave"
 								comms.send(sock, data)
 						elif rec['agenda'] == "cardReveal":
 							board += rec['data']

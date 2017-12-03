@@ -11,16 +11,16 @@ class Game:
 		self.roundObject=None
 		self.cardRankLUT = dict()
 		self.cardRankLUT = {
-			0 : '2',
-			1 : '3',
-			2 : '4',
-			3 : '5',
-			4 : '6',
-			5 : '7',
-			6 : '8',
-			7 : '9',
-			8 : 'T',
-			9 : 'J',
+			0  : '2',
+			1  : '3',
+			2  : '4',
+			3  : '5',
+			4  : '6',
+			5  : '7',
+			6  : '8',
+			7  : '9',
+			9  : 'J',
+			8  : 'T',
 			10 : 'Q',
 			11 : 'K',
 			12 : 'A'
@@ -36,21 +36,19 @@ class Game:
 
 		self.roundCounter = 0
 		self.players = []
+		self.endGameUsers = []
 		
 		self.unshuffledDeck = Deck()
 		self.currentPlayerIndex = 0
 		self.minBet = minBetInit
 
-		#TODO: SQL money
-		#TODO: variabilni money input?
+		#TODO vsi igralci zacnejo z 1000 crediti? in ob koncu se jim belezi dobljeno / zgubljeno
 		#za vsakega lobby usera naredi playera
 		for user in lobby['users'].values():
 			self.addPlayer(Player(1000, user))
 		self.startNewRound()
-
-	def startGame(self):
-		self.startNewRound()
-		return "GAME END MAGIC"
+		#endGameUsers se dodaja ko nekdo zapusti igro ali zmaga
+		return self.endGameUsers
 
 	def convertNotation(self, rank, suit):
 		return self.cardRankLUT[rank] + self.cardSuitLUT[suit]
@@ -58,12 +56,16 @@ class Game:
 	def addPlayer(self, player):
 		self.players.append(player)
 
-	def removePlayer(self, playerId):   #odstranitev igralca iz liste igre/lobbija
-		for i in range(0, len(self.players)):
-			if self.players.getPlayerId() == playerId:
-				self.players.pop(i)
-				return True
-			return False
+	#karantena za kucer magic
+	# def removePlayer(self, playerId):   #odstranitev igralca iz liste igre/lobbija
+	# 	for i in range(0, len(self.players)):
+	# 		if self.players.getPlayerId() == playerId:
+	# 			removedPlayer = self.players.pop(i)
+	# 			endGameUsers.append(removedPlayer);
+	# 			#todo tukaj zapri socket connection?
+	# 			return True
+	# 		return False
+	#
 
 	def startNewRound(self):
 		if(len(self.players) > 1):
@@ -103,7 +105,7 @@ class Round:
 
 	def reset(self, gameObject):
 		self.__init__(gameObject)
-		
+
 	def bettingPhase(self, gameObject, startPlayerIndex):
 		playerCount=len(self.roundPlayers)
 		currentPI=startPlayerIndex
@@ -163,6 +165,16 @@ class Round:
 					comms.broadcastToPlayers(gameObject.players, data)
 
 					currentPI=self.nextPlayer(currentPI, playerCount)
+				elif(action=="leave"):
+					#poslji mu ok za left?
+					self.removePlayer(gameObject, currentPI)
+					# print("\n><\n><\nround:{}, game:{}\n><\n><\n".format(len(self.roundPlayers), len(gameObject.players)))
+					if currentPI > 0:
+						if currentPI == playerCount - 1:
+							currentPI -= 1
+					#fix index problems from leaver
+					playerCount -= 1
+
 		return True
 
 	def preflopPhase(self, gameObject, startPlayerIndex):
@@ -239,7 +251,27 @@ class Round:
 					comms.broadcastToPlayers(gameObject.players, data)
 
 					currentPI=self.nextPlayer(currentPI, playerCount)
+				elif(action=="leave"):
+					#poslji mu ok za left?
+					self.removePlayer(gameObject, currentPI)
+					# print("\n><\n><\nround:{}, game:{}\n><\n><\n".format(len(self.roundPlayers), len(gameObject.players)))
+					if currentPI > 0:
+						if currentPI == playerCount - 1:
+							currentPI -= 1
+					#fix index problems from leaver
+					playerCount -= 1
+
 		return True
+
+	def removePlayer(self, gameObject, playerIndex):
+		#close the socket conn
+		self.roundPlayers[playerIndex].socket.close()
+		
+		#cleanup
+		removedPlayer = self.roundPlayers.pop(playerIndex)
+		self.playerStatus.pop(playerIndex)
+
+		gameObject.endGameUsers.append(removedPlayer);
 
 	def checkArray(self, array):
 		for a in array:
@@ -498,6 +530,7 @@ class Round:
 			else:
 				return False
 		# allHands = []
+		playerCount = len(self.roundPlayers)
 		for i in range(playerCount):
 			if(self.playerStatus != None):
 				self.playerHandScores.append(evaluator.evaluate(self.board, self.roundPlayers[i].hand))
