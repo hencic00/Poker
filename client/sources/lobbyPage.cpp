@@ -2,17 +2,19 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QPushButton>
-#include <QRect>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QSvgWidget>
-#include <iostream>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QJsonArray>
+#include <QThread>
+#include <QtCore>
+#include <QObject>
 
+#include <iostream>
+#include <thread>
 
 #include "lobbyPage.h"
+#include "task.h"
+
 
 lobbyPage::lobbyPage(QWidget *parent):QFrame(parent)
 {			 
@@ -22,63 +24,76 @@ lobbyPage::lobbyPage(QWidget *parent):QFrame(parent)
 lobbyPage::~lobbyPage()
 {}
 
-void lobbyPage::initUI()
+void serverCommThread()
 {
 
-	QRect rec = QApplication::desktop()->screenGeometry();
+	//std::cout << "nekaj" << std::endl;
+	//QJsonObject response = server->receviceMessage();
+
+
+
+	// QJsonValue data = response.value("data");
+	// QJsonValue users = response.value("users");
+ //    QJsonArray usersArray = users.toArray();
+
+ //    foreach (const QJsonValue & user, usersArray)
+ //    {
+	// 	QJsonObject obj = user.toObject();
+
+	// 	QFont font;
+	// 	font.setPixelSize(40);
+	// 	QListWidgetItem *item = new QListWidgetItem();
+	// 	item->setText(obj["username"].toString());
+	// 	item->setFont(font);
+
+	// 	usersList->insertItem(0, item);
+	// }
+}
+
+
+
+void lobbyPage::stackFocus()
+{
+	QThread *thread = new QThread();
+	Task *task = new Task(server, usersList);
+	task->moveToThread(thread);
 
 	QFont font;
 	font.setPixelSize(40);
+	myListItem *item = new myListItem();
+	item->setText(myUsername + " (You)");
+	item->setFont(font);
+	item->userSid = mySid;
 
-	QHBoxLayout *hbox = new QHBoxLayout();
+	title->setText("Players in lobby \"" + lobbyName + "\":");
 
-	QPushButton* joinButton = new QPushButton("  Join lobby  ");
-	joinButton->setFont(font);
-	joinButton->setStyleSheet("margin-top: 20px; margin-right: 10px;");
-	joinButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-
-
-	QPushButton* createButton = new QPushButton("  Create lobby  ");
-	createButton->setFont(font);
-	createButton->setStyleSheet("margin-top: 20px; margin-left: 10px;");
-	createButton->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
-	connect(createButton, &QPushButton::clicked, this, &lobbyPage::createButtonClicked);
+	usersList->insertItem(0, item);
 
 
-	hbox->addWidget(joinButton);
-	hbox->addWidget(createButton);	
-
-
-	QListWidget *listWidget = new QListWidget(this);
-
-	QListWidgetItem *newItem = new QListWidgetItem;
-	newItem->setText("Lobby 1");
-	newItem->setFont(font);
-
-	QListWidgetItem *newItem1 = new QListWidgetItem;
-    newItem1->setText("Lobby 2");
-	newItem1->setFont(font);
-
-	QListWidgetItem *newItem2 = new QListWidgetItem;
-    newItem2->setText("Lobby 3");
-	newItem2->setFont(font);
-
-	QListWidgetItem *newItem3 = new QListWidgetItem;
-    newItem3->setText("Lobby 4");
-	newItem3->setFont(font);
-
-    listWidget->insertItem(0, newItem);
-    listWidget->insertItem(0, newItem1);
-    listWidget->insertItem(0, newItem2);
-    listWidget->insertItem(0, newItem3);
-
-	QVBoxLayout *vbox = new QVBoxLayout();
-	vbox->addWidget(listWidget, 5);
-	vbox->addLayout(hbox, 1);
-	this->setLayout(vbox);
+	connect( thread, &QThread::started, task, &Task::doWork );
+	connect( task, &Task::workFinished, thread, &QThread::quit );
+	thread->start();
 }
 
-void lobbyPage::createButtonClicked()
+
+void lobbyPage::initUI()
 {
-	emit navigateTo("Playing", 4);
+	usersList = new QListWidget(this);
+	usersList->setSelectionMode( QAbstractItemView::SingleSelection );
+
+	QFont font1;
+	font1.setPixelSize(70);
+	title = new QLabel("Players in lobby \"" + lobbyName + "\":");
+	title->setStyleSheet("margin-bottom: 30px");
+	
+	title->setFont(font1);
+	title->setAlignment(Qt::AlignCenter);
+	title->setSizePolicy(QSizePolicy ::Expanding , QSizePolicy ::Expanding );
+
+	QVBoxLayout *vbox = new QVBoxLayout();
+	vbox->addWidget(title, 0);
+	vbox->addWidget(usersList, 5);
+
+
+	this->setLayout(vbox);
 }

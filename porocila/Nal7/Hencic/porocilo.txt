@@ -1,0 +1,12 @@
+Končano:
+	- Ustvarjanje vztrajne komunikacije (2.5h)
+		-- za uporabo v lobbyih
+		-- socket se ne zapre, ampak se uporablja skozi lobby in igro
+	- Uporabnik sedaj lahko ustvari novi lobby (1h)
+	- Ob ustvaritvi ga preusmeri na lobby page (0.5h)
+	- Uporabnik se lahko pridruži lobbyu (1h)
+		-- Ni še končano
+
+Naslednji teden:
+	- Končati lobby-e
+	- Igranje igre

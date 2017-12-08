@@ -9,6 +9,7 @@
 #include <string>
 
 #include "connectionHandler/connectionHandler.h"
+#include "connectionHandler/serverHandler.h"
 #include "userData.h"
 
 class pokerWindow : public QFrame
@@ -28,6 +29,7 @@ class pokerWindow : public QFrame
 		QTimer *timer;
 
 		connectionHandler* server;
+		serverHandler* server1;
 		char userName[100];
 		char userId[100];
 		char email[100];
