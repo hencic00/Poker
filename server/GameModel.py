@@ -40,7 +40,7 @@ def getUserGames(userId):
 	if len(rows) == 0:
 		return 0
 	else:
-		return rows
+		return rows[0]
 
 def getLastUserGames5(userId):
 	cur,con = mysqlService.connect()
@@ -52,12 +52,11 @@ def getLastUserGames5(userId):
 	if len(rows) == 0:
 		return 0
 	else:
-		return rows
+		return rows[0]
 
 
 def getUserLastGoodGames3(userId):
 	cur,con = mysqlService.connect()
-	AND g.time < DATE_SUB(now(),interval 1 month)
 	cur.execute("""SELECT ug.tk_game as gameId, ug.score, g.time FROM user as u
 	INNER JOIN user_game as ug on ug.tk_user = u.id
 	AND ug.score > 1000
@@ -76,7 +75,6 @@ def getUserLastGoodGames3(userId):
 
 def getUserLastBadGames3(userId):
 	cur,con = mysqlService.connect()
-	AND g.time < DATE_SUB(now(),interval 1 month)
 	cur.execute("""SELECT ug.tk_game as gameId, ug.score, g.time FROM user as u
 	INNER JOIN user_game as ug on ug.tk_user = u.id
 	AND ug.score < 200
@@ -95,10 +93,8 @@ def getUserLastBadGames3(userId):
 
 def checkUserWinstreak(userId):
 	cur,con = mysqlService.connect()
-	AND g.time < DATE_SUB(now(),interval 1 month)
 	cur.execute("""SELECT AVG(ug.score) as avgScore FROM user as u
 	INNER JOIN user_game as ug on ug.tk_user = u.id
-	AND ug.score > 1000
 	INNER JOIN game as g on ug.tk_game = g.id
 	WHERE u.id = '{}'
 	ORDER BY g.time
@@ -110,7 +106,10 @@ def checkUserWinstreak(userId):
 	if len(rows) == 0:
 		return 0
 	else:
-		return rows[0]
+		if rows[0][0] > 1000:
+			return 1
+		else:
+			return -1
 
 def insertPostGameData(endGameUsers):
 	createdGame = insertGame()
