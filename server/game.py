@@ -267,11 +267,16 @@ class Round:
 		#close the socket conn
 		self.roundPlayers[playerIndex].socket.close()
 		
+		#remove player from lobby
+		del gameObject.lobby['users'][self.roundPlayers[playerIndex].id]
+		
 		#cleanup
 		removedPlayer = self.roundPlayers.pop(playerIndex)
 		self.playerStatus.pop(playerIndex)
 
+		#TODO set user score, za lazji insert into DB pol. kucer pls
 		gameObject.endGameUsers.append(removedPlayer);
+
 
 	def checkArray(self, array):
 		for a in array:
@@ -553,6 +558,7 @@ class Round:
 
 		winners=self.getWinnerIndexes()      
 		self.endRound(gameObject, winners)
+		#TODO: ob koncu igre klici removePlayer() nad vsemi igralci ki so ostali zavoljo konsistence
 		# evaluator.hand_summary(self.board, allHands)      
 		return True
 
@@ -575,6 +581,7 @@ class Player:
 		self.allInDifference=0
 		self.id = user['sid']
 		self.socket = user['socket']
+		self.score = 0 #upam da ni kaj breakalo. TODO: nastavi me enkrat ko user leava
 
 	def setMoney(self, moneyAmmount):
 			self.money=moneyAmmount

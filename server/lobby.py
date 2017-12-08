@@ -128,22 +128,15 @@ def getLobbyData(lobbies, lobbyId): #TODO
 def startGame(lobbies, lobbyId):
 	#game init
 	from game import Game
-	gameObj = Game(lobbies[lobbyId], 5);
-	# print(gameObj.startGame())
+	endGameUsers = Game(lobbies[lobbyId], 5);
 	print("GAME OVER")
-	# finishGame(lobbies, lobbyId)
+	finishGame(lobbies, lobbyId, endGameUsers)
 
-def finishGame(lobbies, lobbyId):
+def finishGame(lobbies, lobbyId, endGameUsers):
 	import GameModel
-	#vsakemu poslji da je konec?
-
-	#database magic
-	GameModel.insertPostGameData()
 
 	#close all socket connections
-	for usr in lobbies[lobbyId]['users']:
-		print "closing socket for {}.".format(address)
-		usr['socket'].close()
+	GameModel.insertPostGameData(endGameUsers);
 
 	#remove lobby from lobby list
 	del lobbyies[lobbyId]

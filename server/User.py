@@ -57,7 +57,7 @@ def register(username, email, password):
 	
 def getAllInactiveUsers():
 	cur,con = mysqlService.connect()
-	cur.execute("SELECT * FROM user where DATE_SUB(now(),interval 1 month) < user.last_login")
+	cur.execute("SELECT * FROM user where DATE_SUB(now(),interval 1 month) >= user.last_login")
 	results = cur.fetchall()
 	cur.close()
 	con.close()
@@ -65,3 +65,34 @@ def getAllInactiveUsers():
 		return 0
 	else:
 		return results
+
+#get user average lifetime score
+def getUserAvgScore(userId):
+	cur,con = mysqlService.connect()
+	cur.execute("SELECT AVG(ug.score) as userAvgScore FROM user_game as ug WHERE tk_user = '{}'".format(userId))
+	rows = cur.fetchall()
+
+	cur.close()
+	con.close()
+	if len(rows) == 0:
+		return 0
+	else:
+		return rows[0]
+
+#get user average score for last month
+def getUserAvgMonthlyScore(userId):
+	cur,con = mysqlService.connect()
+	cur.execute("""SELECT u.score FROM user as u
+	INNER JOIN user_game as ug on ug.tk_user = u.id
+	INNER JOIN game as g on ug.tk_game = g.id
+	AND g.time < DATE_SUB(now(),interval 1 month)
+	WHERE u.id = '{}'
+	ORDER BY g.time;""".format(userId))
+	rows = cur.fetchall()
+
+	cur.close()
+	con.close()
+	if len(rows) == 0:
+		return 0
+	else:
+		return rows[0]
