@@ -1,0 +1,33 @@
+.forma {
+    width: 400px;
+    margin: 0 auto;
+   
+    
+}
+ .forma1 {
+    width: 400px;
+    margin: 0 auto;
+    color: white;
+    
+}
+.edit{
+width: 500px;
+    margin: 0 auto;
+}
+
+.gumbovi{
+    float: right;
+}
+
+
+.nav-center {
+    display: inline-block;
+    left: 0;
+    right: 0;
+    margin:0;
+    float:none;
+}
+
+.navbar-inner{
+    text-align:center;
+}
