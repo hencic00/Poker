@@ -68,12 +68,12 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 
 def leaveLobby(lobbies, lobbyId, userSid, clientSock, resData):#TODO: MUTEX
 	print "LOBBY {}: {} left.".format(lobbies[lobbyId]['id'], userSid)
+	del lobbies[lobbyId]['users'][userSid]
 	#send him ok and disconnect the socket
 	resData['status'] = "ok"
 	comms.send(clientSock, resData)
 	# clientSock.sendall(json.dumps(resData).encode('utf-8'))
 	clientSock.close();
-	del lobbies[lobbyId]['users'][userSid]
 	notifyEveryone(lobbies, lobbyId, "playerLeft", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid);
 	
 	#if the leaving player is the last one, destroy the lobby
