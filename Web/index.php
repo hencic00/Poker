@@ -1,3 +1,6 @@
+<?php 
+include("php/sesija.php");
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,10 +49,10 @@
             </li>
 			
 			<?php
-			include("sesija.php");
-			echo $_SESSION['korisnik'];
-			if(isset($_SESSION['korisnik'])): ?>
-				<li class="nav-item mx-0 mx-lg-1"><a style="text-decoration:false;" href="php/login.php" class=" nav-link py-3 px-0 px-lg-3 ">Profile</a></li>
+			if(isset($_SESSION['korisnik'])):
+			?>
+				<li class="nav-item mx-0 mx-lg-1"><a style="text-decoration:false;" href="php/profil.php" class=" nav-link py-3 px-0 px-lg-3 ">Profile</a></li>
+				<li class="nav-item mx-0 mx-lg-1"><a style="text-decoration:false;" href="php/logout.php" class=" nav-link py-3 px-0 px-lg-3 ">Log out</a></li>
 			<?php else : ?>
 			<li class="nav-item mx-0 mx-lg-1"><a style="text-decoration:false;" href="php/login.php" class=" nav-link py-3 px-0 px-lg-3 ">Login</a></li>
 			<?php endif;   ?>

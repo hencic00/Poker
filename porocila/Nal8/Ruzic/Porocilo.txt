@@ -1,0 +1,11 @@
+Opravljene naloge v 8. tednu:
+	- Dodatne funkcionalnosti spletne strani :(cca 5 h)
+		- login
+		- profil
+		- sprememba gesla
+		
+
+Naloge za naslednji teden:
+	
+	- sprememba profilne slike 
+	
