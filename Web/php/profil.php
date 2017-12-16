@@ -21,7 +21,8 @@ if(isset($_GET['Message'])){
 }
          echo'   <div class="col-md-3" >
 			<div id="slike">
-				<img width="200" height="200" id="odabranaSlika" src="../images/nobody.jpg"/>
+				<img width="200" height="200" id="odabranaSlika" src="slike/'.$redak['slika'].'"/>
+				
 			 </div>
 				
             </div>
@@ -30,6 +31,7 @@ if(isset($_GET['Message'])){
 			<h3>Username: '.$redak['username'].'</h3>
 			
 			<a class="btn btn-primary btn-lg" href="editProfil.php">Change password</a>
+			<a class="btn btn-primary btn-lg" href="avatar.php">Change avatar</a>
 			</div>
         </div>
 		</div>
