@@ -70,11 +70,11 @@ Communication JSON format:
   
  # Inside a game #
 
-**"gameStart"**:
+ **"gameStart"**:
 - from server:  
   - {"status": "ok", {'data': {'players': [{'username': 'asd', 'playerSid': 5}, {'username': 'w', 'playerSid': 6}], 'startingCash': []}, 'agenda': 'gameStart'}, "agenda": "gameStart"}  
   
-  **"roundStart"**:
+ **"roundStart"**:
 - from server:  
   - {'status': 'ok', 'data': ['3h', '5c'], 'agenda': 'roundStart'}  
 
