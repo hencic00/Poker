@@ -6,7 +6,7 @@ Communication JSON format:
 
 **"login"**:
 - to server:  
-  - {agenda="login", email="jan.jurman@student.um.si", password="geslo123"}  
+  - {agenda="login", email="jaz.igram@poker.si", password="geslo123"}  
 - from server:
   - {agenda="login", userId: "c4e687b4-60af-42f4-bc51-0e9962878e03", username="whatever", status="ok"}  
   - {agenda="login", status="nonExistentUser"}  
@@ -22,7 +22,7 @@ Communication JSON format:
 
 **"register"**:
 - to server:
-  - {agenda="register", username="jan", email="jan.jurman@student.um.si" password="geslo123"}  
+  - {agenda="register", username="jan", email="jaz.igram@poker.si" password="geslo123"}  
 - from server:  
   - {agenda="register", status:"ok"}  
   - {agenda="register", status:"usernameTaken"}  
@@ -68,12 +68,16 @@ Communication JSON format:
 - from server:	
   - {"status": "ok", "agenda": "ready"}
   
-**"gameStart"**:
-- from server:	
-  - {"status": "ok", "data": ["9h", "Ad"], "agenda": "gameStart"} //data je tvoj hand
-  
  # Inside a game #
- 
+
+**"gameStart"**:
+- from server:  
+  - {"status": "ok", {'data': {'players': [{'username': 'asd', 'playerSid': 5}, {'username': 'w', 'playerSid': 6}], 'startingCash': []}, 'agenda': 'gameStart'}, "agenda": "gameStart"}  
+  
+  **"roundStart"**:
+- from server:  
+  - {'status': 'ok', 'data': ['3h', '5c'], 'agenda': 'roundStart'}  
+
  **"blinds"**:
 - from server:	
   - {"data": [5, 6, 5], "agenda": "BSblind"}  //[small, big, minBet]  

@@ -24,34 +24,20 @@ class ThreadedServer(object):
 		self.sock.listen(50) #max con size?
 		while True:
 			clientSock, address = self.sock.accept()
+			# print("User connected {}".format(address))
 			clientSock.settimeout(None)
 			clientHandlerThead = Thread(target = self.handle,args = (clientSock,address))
 			clientHandlerThead.daemon = True
 			clientHandlerThead.start()
 
-	def listenToClient(self, clientSock, address): #TODO delete me later
-		size = 1024
-		while True:
-			try:
-				data = clientSock.recv(size)
-				if data:
-					# Set the response to echo back the recieved data 
-					response = data
-					clientSock.send(response)
-				else:
-					raise error('Client disconnected')
-			except:
-				clientSock.close()
-				return False
-
 	def handle(self, clientSock, address):
 		packetSize = 1024
 		closeSocket = True
-		# data = clientSock.recv(packetSize)
-		reqData = comms.receive(clientSock)
-		# print("{} sent request.".format(address))
-		# reqData = data.decode("utf-8");
-		# reqData = json.loads(reqData)
+		try:
+			reqData = comms.receive(clientSock)
+		except socket.error as msg:
+			clientSock.close()
+			return
 		responseData = {}
 		responseData['agenda'] = reqData['agenda']
 		#login user
@@ -121,9 +107,13 @@ class ThreadedServer(object):
 				responseData['status'] = "badRequest"
 
 		if closeSocket:
-			comms.send(clientSock, responseData)
-			# clientSock.sendall(json.dumps(responseData).encode('utf-8')) #persistent connections handle themselves in their functions
-			print "closing socket for {}.".format(address)
+			try:
+				comms.send(clientSock, responseData)
+			except socket.error as msg:
+				print("Exception handled: {}".format(msg))
+				clientSock.close()
+				return
+			print "Closing socket for {}.".format(address)
 			clientSock.close()
 
 

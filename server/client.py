@@ -19,7 +19,7 @@ def lobbyLoop(data, sock):
 			received = comms.receive(sock)
 			while True:
 				received = comms.receive(sock) #<- game start
-				if received['agenda'] == 'gameStart':
+				if received['agenda'] == 'roundStart':
 					myHand = received['data']
 					board = []
 					print("myHand: {}".format(myHand))

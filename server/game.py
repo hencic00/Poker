@@ -4,11 +4,13 @@ from deuces import Evaluator
 from deuces import Card
 evaluator = Evaluator()
 import comms
+import User
 
 class Game:
-	def __init__(self, lobby, minBetInit):
+	def __init__(self, lobby, minBetInit, startingCash):
 		self.lobby = lobby
-		self.roundObject=None
+		self.startingCash = startingCash;
+		self.roundObject = None
 		self.cardRankLUT = dict()
 		self.cardRankLUT = {
 			0  : '2',
@@ -44,8 +46,20 @@ class Game:
 
 		#TODO vsi igralci zacnejo z 1000 crediti? in ob koncu se jim belezi dobljeno / zgubljeno
 		#za vsakega lobby usera naredi playera
-		for user in lobby['users'].values():
-			self.addPlayer(Player(1000, user))
+
+	def startGame(self):
+		data = {}
+		data['agenda'] = "gameStart"
+		data['data'] = {'players':[], 'startingCash':[]}
+		for user in self.lobby['users'].values():
+			self.addPlayer(Player(self.startingCash, user))
+			#add user to data object for sending of initial players
+			data['data']['players'].append({
+				'playerSid': user['sid'],
+				'username': User.getUsername(user['sid'])
+			})
+
+		comms.broadcastToPlayers(self.players, data)
 		self.startNewRound()
 		#endGameUsers se dodaja ko nekdo zapusti igro ali zmaga
 		return self.endGameUsers
@@ -178,20 +192,20 @@ class Round:
 		return True
 
 	def preflopPhase(self, gameObject, startPlayerIndex):
-		playerCount=len(self.roundPlayers)
-		currentPI=startPlayerIndex
+		playerCount = len(self.roundPlayers)
+		currentPI = startPlayerIndex
 		for p in range(0, playerCount):   #init. playerStatus array-all to false
 			self.playerStatus.append(False)
 		#small blind
 		smallPI = currentPI
 		self.roundPlayers[currentPI].placeBet(self, self.currentMinBet/2)
-		currentPI=self.nextPlayer(currentPI, playerCount)
+		currentPI = self.nextPlayer(currentPI, playerCount)
 
 		#big blind
 		bigPI = currentPI
 		self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
-		self.playerStatus[currentPI]=True
-		currentPI=self.nextPlayer(currentPI, playerCount)		
+		self.playerStatus[currentPI] = True
+		currentPI = self.nextPlayer(currentPI, playerCount)		
 		#broadcast: smallblind from player
 		data = {}
 		data['agenda'] = "BSblind" #prvi bo small, drugi bo big
@@ -473,7 +487,7 @@ class Round:
 		#game start & initial cards
 		for player in self.roundPlayers:
 			data = {}
-			data['agenda'] = "gameStart"
+			data['agenda'] = "roundStart"
 			data['status'] = "ok"
 			currentHand = player.hand
 			data['data'] = [

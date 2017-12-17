@@ -2,8 +2,9 @@ import User
 import json
 import time
 import comms
+import socket
 
-def createLobby(lobbies, lobbyName): #TODO spremeni spodnji user v njegov MYSQL id
+def createLobby(lobbies, lobbyName):
 	#create lobby object
 	import uuid
 	lobby = {'id': str(uuid.uuid4()), 'name': lobbyName, 'users': dict()}
@@ -23,8 +24,11 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 	resData['data'] = getLobbyData(lobbies, lobbyId)
 	resData['status'] = "ok"
 
-	comms.send(clientSock, resData)
-	# clientSock.sendall(json.dumps(resData).encode('utf-8')) #send "ok"
+	try:
+		comms.send(clientSock, resData)
+	except socket.error as msg:
+		handleConnError(clientSock, lobbies, lobbyId, userSid)
+		return
 
 	#tell everyone a player joined
 	notifyEveryoneExcept(lobbies, lobbyId, "playerJoined", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid)
@@ -32,17 +36,22 @@ def joinLobby(lobbies, lobbyId, userSid, clientSock, reqData): #sid = sql id
 	#wait for start game or leave lobby
 	waiting = True
 	while waiting:
-		reqData = comms.receive(clientSock)
-		# data = clientSock.recv(1024) #za ready
-		# reqData = data.decode("utf-8");
-		# reqData = json.loads(reqData)
+		try:
+			reqData = comms.receive(clientSock)
+		except (socket.error, TypeError) as msg:
+			handleConnError(clientSock, lobbies, lobbyId, userSid)
+			break;
 		print("LOBBY {}: {}".format(lobbyId,reqData))
 		resData = {}
 		resData['agenda'] = reqData['agenda']
 		if reqData['agenda'] == "ready":
 			resData['status'] = "ok"
-			comms.send(clientSock, resData)
+			try:
+				comms.send(clientSock, resData)
+			except socket.error as msg:
+				handleConnError(clientSock, lobbies, lobbyId, userSid)
 			lobbies[lobbyId]['users'][userSid]['ready'] = True
+			#user readied successfuly
 			notifyEveryoneExcept(lobbies, lobbyId, "userReady", {'userSid': userSid}, userSid)
 			while True:
 				time.sleep(3)
@@ -71,14 +80,19 @@ def leaveLobby(lobbies, lobbyId, userSid, clientSock, resData):#TODO: MUTEX
 	del lobbies[lobbyId]['users'][userSid]
 	#send him ok and disconnect the socket
 	resData['status'] = "ok"
-	comms.send(clientSock, resData)
-	# clientSock.sendall(json.dumps(resData).encode('utf-8'))
-	clientSock.close();
-	notifyEveryone(lobbies, lobbyId, "playerLeft", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid);
-	
+	try:
+		comms.send(clientSock, resData)
+		clientSock.close();
+		notifyEveryone(lobbies, lobbyId, "playerLeft", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid);
+		#if the leaving player is the last one, destroy the lobby
+		destroyLobbyIfEmpty(lobbies, lobbyId)
+	except socket.error as msg:
+		handleConnError(clientSock, lobbies, lobbyId, userSid)
+
+def destroyLobbyIfEmpty(lobbies, lobbyId):
 	#if the leaving player is the last one, destroy the lobby
 	if len(lobbies[lobbyId]['users']) == 0:
-		print "Deleting empty lobby {}.".format(lobbyId)
+		print "Deleting empty lobby {}.".format(lobbies[lobbyId]['id'])
 		del lobbies[lobbyId]
 
 def notifyEveryone(lobbies, lobbyId, agenda, data, userSid):
@@ -87,8 +101,10 @@ def notifyEveryone(lobbies, lobbyId, agenda, data, userSid):
 	if data != None:
 		resData['data'] = data
 	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
-		comms.send(user['socket'], resData)
-		# user['socket'].sendall(json.dumps(resData))
+		try:
+			comms.send(user['socket'], resData)
+		except socket.error as msg:
+			handleConnError(user['socket'], lobbies, lobbyId, userSid)
 
 def notifyEveryoneExcept(lobbies, lobbyId, agenda, data, exceptUserSid):
 	resData = {}
@@ -97,8 +113,11 @@ def notifyEveryoneExcept(lobbies, lobbyId, agenda, data, exceptUserSid):
 		resData['data'] = data
 	for user in lobbies[lobbyId]['users'].values(): #gets all user objects
 		if(user['sid']) != exceptUserSid:
-			comms.send(user['socket'], resData)
-			# user['socket'].sendall(json.dumps(resData))
+			try:
+				comms.send(user['socket'], resData)
+			except socket.error as msg:
+				handleConnError(user['socket'], lobbies, lobbyId, userSid)
+				continue
 
 def readyUsersCount(lobby):
 	readyCount = 0
@@ -107,14 +126,13 @@ def readyUsersCount(lobby):
 			readyCount += 1
 	return readyCount
 
-
 def getAllLobbiesForFront(lobbies):
 	lobbiesForFront = []
 	for lob in lobbies.values():
 		users = []
 		for usr in lob['users'].values():
 			users.append({'userSid':usr['sid'], 'username':User.getUsername(usr['sid'])})
-		lobby = {'id' : lob['id'], 'name': lob['name'], 'users': users} #todo names?
+		lobby = {'id' : lob['id'], 'name': lob['name'], 'users': users}
 		lobbiesForFront.append(lobby)
 	return lobbiesForFront
 
@@ -128,7 +146,8 @@ def getLobbyData(lobbies, lobbyId): #TODO
 def startGame(lobbies, lobbyId):
 	#game init
 	from game import Game
-	endGameUsers = Game(lobbies[lobbyId], 5);
+	gameObj = Game(lobbies[lobbyId], 5, 1000);
+	endGameUsers = gameObj.startGame()
 	print("GAME OVER")
 	finishGame(lobbies, lobbyId, endGameUsers)
 
@@ -136,7 +155,24 @@ def finishGame(lobbies, lobbyId, endGameUsers):
 	import GameModel
 
 	#close all socket connections
+	#TODO!
 	GameModel.insertPostGameData(endGameUsers);
 
 	#remove lobby from lobby list
-	del lobbyies[lobbyId]
+	del lobbies[lobbyId]
+
+def handleConnError(clientSock, lobbies, lobbyId, userSid):
+	#close the connection
+	clientSock.close()
+	print("Player {} left because of error in connection.".format(userSid))
+	#remove player from lobby
+	del lobbies[lobbyId]['users'][userSid]
+
+	#if the lobby is empty, destroy it
+	if len(lobbies[lobbyId]['users']) == 0:
+		print "Deleting empty lobby {}.".format(lobbyId)
+		del lobbies[lobbyId]
+	else:
+		#notify everyone a player left
+		notifyEveryone(lobbies, lobbyId, "playerLeft", {'userSid':userSid, 'username':User.getUsername(userSid)}, userSid);
+	return
