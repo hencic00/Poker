@@ -1,0 +1,42 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+
+\usepackage{graphicx}
+\graphicspath{ {/home/jan/Documents/RUPS/Poker/porocila/images/}\ignore{imageDirectories}}
+
+\newcommand{\ignore}[1]{}
+
+\begin{document}
+\begin{titlepage}
+	\centering
+	\includegraphics[width=0.3\textwidth]{logo-um-feri.png}\par\vspace{1cm}
+	{\scshape\LARGE Fakulteta za elektrotehniko, računalništvo in informatiko \par}
+	\vspace{1cm}
+	{\scshape\Large RUPS Projekt\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Porocilo \ignore{currentPorociloNr}\par}
+	\vspace{2cm}
+	Vodja\par
+	{\itshape Jan Jurman\par}
+	Ekipa\par
+	{\itshape Jan Henčič\\
+	Jure Kučer\\
+	Aleš Ružić\\}
+	\vfill
+
+% Bottom of the page
+{\large \today\par}
+\end{titlepage}
+{\large\textbf{Opravljene naloge v \ignore{currentPorociloNr}. tednu:}}
+
+\ignore{porociloContentDone}
+
+\pagebreak
+{\large\textbf{Slike:}}\par\vspace{2cm}
+\ignore{porociloContentImages}
+\pagebreak
+
+{\large\textbf{Naloge za naslednji teden:}}
+\ignore{porociloContentWillDo}
+\end{document}
