@@ -2,12 +2,13 @@ import random
 from deuces import Deck #pip install deuces
 from deuces import Evaluator
 from deuces import Card
+import math
 evaluator = Evaluator()
 import comms
 import User
 
 class Game:
-	def __init__(self, lobby, minBetInit, startingCash):
+	def __init__(self, lobby, minBetInit, startingCash, minRaiseInit):
 		self.lobby = lobby
 		self.startingCash = startingCash;
 		self.roundObject = None
@@ -43,8 +44,8 @@ class Game:
 		self.unshuffledDeck = Deck()
 		self.currentPlayerIndex = 0
 		self.minBet = minBetInit
+		self.minRaise=minRaiseInit
 
-		#TODO vsi igralci zacnejo z 1000 crediti? in ob koncu se jim belezi dobljeno / zgubljeno
 		#za vsakega lobby usera naredi playera
 
 	def startGame(self):
@@ -60,7 +61,10 @@ class Game:
 			})
 
 		comms.broadcastToPlayers(self.players, data)
-		self.startNewRound()
+		result=self.startNewRound()
+		if(result==False):
+			for x in range(len(self.players)-1, -1, -1):
+				self.removePlayerFromGame(x)
 		#endGameUsers se dodaja ko nekdo zapusti igro ali zmaga
 		return self.endGameUsers
 
@@ -70,29 +74,41 @@ class Game:
 	def addPlayer(self, player):
 		self.players.append(player)
 
-	#karantena za kucer magic
-	# def removePlayer(self, playerId):   #odstranitev igralca iz liste igre/lobbija
-	# 	for i in range(0, len(self.players)):
-	# 		if self.players.getPlayerId() == playerId:
-	# 			removedPlayer = self.players.pop(i)
-	# 			endGameUsers.append(removedPlayer);
-	# 			#todo tukaj zapri socket connection?
-	# 			return True
-	# 		return False
-	#
-
 	def startNewRound(self):
 		if(len(self.players) > 1):
 			self.roundObject=Round(self)
 			while(True):
 				if(len(self.players) > 1):	#check if players in game are more than 1; sam pac ne mors spilat, duh
-					print("ROUND " + str(self.roundCounter) + "START")
+					print("REMOVING PLAYERS WITHOUT MONEY")
+					self.removePlayersWithNoMoney()
+					print("ROUND " + str(self.roundCounter) + " START")
 					result=self.roundObject.startRound(self)
+					if(result==False):
+						return False
 					self.roundObject.reset(self)
 				else:
 					return False
 		else:
 			return False
+
+	def removePlayersWithNoMoney(self):
+		for x in range(len(self.players)-1, -1, -1):
+			if(self.players[x].money<=0):
+				self.removePlayerFromGame(self, x)
+
+
+	def removePlayerFromGame(self, playerIndex):
+		#close the socket conn
+		self.players[playerIndex].socket.close()
+		#remove player from lobby
+		del self.lobby['users'][self.players[playerIndex].id]
+		#cleanup
+		removedPlayer = self.players.pop(playerIndex)
+		#self.playerStatus.pop(playerIndex)
+		#DONE(test) set user score, za lazji insert into DB pol. kucer pls
+		removedPlayer.score=removedPlayer.money-self.startingCash
+
+		self.endGameUsers.append(removedPlayer);
 
 class Round:
 	def __init__(self, gameObject):
@@ -139,11 +155,11 @@ class Round:
 
 				data = {}
 				data['agenda'] = "yourTurn"
-				#TODO check for bad input
+				
 				print("Sending yourTurn to {}".format(gameObject.players[currentPI].id))
 				comms.send(gameObject.players[currentPI].socket, data)
 
-				rec = comms.receive(gameObject.players[currentPI].socket) #todo timeout?
+				rec = comms.receive(gameObject.players[currentPI].socket)
 				action = rec['agenda']
 				if(action=="check"):
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
@@ -156,17 +172,25 @@ class Round:
 
 					currentPI=self.nextPlayer(currentPI, playerCount)
 				elif(action=="raise"):
-					#TODO check da raisa vec kot je min SERVER SIDE
+					#DONE(test) check, da raisa vec kot je min SERVER SIDE
 					inputRaise = int(rec['data'])
-					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
+					#if(inputRaise<=0):
+					#	inputRaise=minRaise
+					#elif(inputRaise>self.roundPlayers[currentPI].money):
+					#	inputRaise=self.roundPlayers[currentPI].money
+					#DONE-end
+					betPlaced=self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
 					self.playerStatus[currentPI]=True
 					self.resetPlayerStatusAfterRaise(currentPI)
+
 					self.currentMinBet+=inputRaise
 
 					print("RAISE: {}".format(inputRaise))
 					data = {}
 					data['agenda'] = "playerRaise"
+
 					data['data'] = [gameObject.players[currentPI].id, inputRaise] #player ki je raisal: SID, stevilo
+
 					comms.broadcastToPlayers(gameObject.players, data)
 
 					currentPI=self.nextPlayer(currentPI, playerCount)
@@ -198,12 +222,12 @@ class Round:
 			self.playerStatus.append(False)
 		#small blind
 		smallPI = currentPI
-		self.roundPlayers[currentPI].placeBet(self, self.currentMinBet/2)
+		betPlaced=self.roundPlayers[currentPI].placeBet(self, self.currentMinBet/2)
 		currentPI = self.nextPlayer(currentPI, playerCount)
 
 		#big blind
 		bigPI = currentPI
-		self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
+		betPlaced=self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
 		self.playerStatus[currentPI] = True
 		currentPI = self.nextPlayer(currentPI, playerCount)		
 		#broadcast: smallblind from player
@@ -225,15 +249,14 @@ class Round:
 
 				data = {}
 				data['agenda'] = "yourTurn"
-				#TODO check for bad input
+
 				comms.send(gameObject.players[currentPI].socket, data)
 
-				rec = comms.receive(gameObject.players[currentPI].socket) #todo timeout?
+				rec = comms.receive(gameObject.players[currentPI].socket)
 				action = rec['agenda']
 				if(action=="check"):
-					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
+					betPlaced=self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
 					self.playerStatus[currentPI]=True
-
 					data = {}
 					data['agenda'] = "playerCheck"
 					data['data'] = gameObject.players[currentPI].id #player ki je raisal: SID
@@ -241,18 +264,26 @@ class Round:
 
 					currentPI=self.nextPlayer(currentPI, playerCount)
 				elif(action=="raise"):
-					#TODO check da raisa vec kot je min SERVER SIDE
 					inputRaise = int(rec['data'])
-					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
+					#DONE(test) check, da raisa vec kot je min SERVER SIDE
+					#if(inputRaise<minRaise):
+					#	inputRaise=minRaise
+					#elif(inputRaise>self.roundPlayers[currentPI].money):
+					#	inputRaise=self.roundPlayers[currentPI].money
+					#DONE-end
+					betPlaced=self.roundPlayers[currentPI].placeBet(self, self.currentMinBet + inputRaise)
 					self.playerStatus[currentPI]=True
 					self.resetPlayerStatusAfterRaise(currentPI)
+
 					self.currentMinBet+=inputRaise
 
 					print("RAISE: {}".format(inputRaise))
 					#notify everyone player raised
 					data = {}
 					data['agenda'] = "playerRaise"
+
 					data['data'] = [gameObject.players[currentPI].id, inputRaise] #player ki je raisal: SID, stevilo
+
 					comms.broadcastToPlayers(gameObject.players, data)
 
 					currentPI=self.nextPlayer(currentPI, playerCount)
@@ -288,9 +319,10 @@ class Round:
 		removedPlayer = self.roundPlayers.pop(playerIndex)
 		self.playerStatus.pop(playerIndex)
 
-		#TODO set user score, za lazji insert into DB pol. kucer pls
-		gameObject.endGameUsers.append(removedPlayer);
+		#DONE(test) set user score, za lazji insert into DB pol. kucer pls
+		removedPlayer.score=removedPlayer.money-gameObject.startingCash
 
+		gameObject.endGameUsers.append(removedPlayer);
 
 	def checkArray(self, array):
 		for a in array:
@@ -348,7 +380,6 @@ class Round:
 			data['data']['winnerSid'] = gameObject.players[winners[0]].id	#front checks len(data['playerSid'])
 			data['data']['earnings'] = self.pot
 		else:
-			#split the pot-TO FINISH
 			#OH LORD HELP US, CE BO TO DELALO
 			mainPot=0
 			sidePot=0
@@ -436,7 +467,7 @@ class Round:
 			#	gameObject.players[winnerIndex].money+=potSplit
 			#	print("Player " + str(winners[0]) + " ")
 			#	data['playerSid'].append(gameObject.players[p])
-			#	data['earnings'].append(potSplit)	#TODO edge cases kot so all in pa premalo dnara
+			#	data['earnings'].append(potSplit)
 		
 		for player in gameObject.players:
 			data['data']['playerSid'].append(player.id)
@@ -478,7 +509,7 @@ class Round:
 		print("MAIN POT: "+ str(self.pot)+ " SIDE POT: "+ str(self.sidePot))
 		playerCount = len(self.roundPlayers)
 		if(playerCount <= 1): #check if there are more than 1 players in round
-			return False #TODO implementiraj ce ni nobenega ker so leavali
+			return False #DONE implementiraj ce ni nobenega ker so leavali
 		
 		#deal initial hands
 		for i in range(2):
@@ -572,7 +603,7 @@ class Round:
 
 		winners=self.getWinnerIndexes()      
 		self.endRound(gameObject, winners)
-		#TODO: ob koncu igre klici removePlayer() nad vsemi igralci ki so ostali zavoljo konsistence
+		#DONE(test): ob koncu igre klici removePlayer() nad vsemi igralci ki so ostali zavoljo konsistence
 		# evaluator.hand_summary(self.board, allHands)      
 		return True
 
@@ -595,7 +626,7 @@ class Player:
 		self.allInDifference=0
 		self.id = user['sid']
 		self.socket = user['socket']
-		self.score = 0 #upam da ni kaj breakalo. TODO: nastavi me enkrat ko user leava
+		self.score = 0
 
 	def setMoney(self, moneyAmmount):
 			self.money=moneyAmmount
@@ -603,21 +634,21 @@ class Player:
 	def addCard(self, card):
 			self.hand.append(card)
 
-	def placeBet(self, roundObject, ammount): #TODO: ce ti dnara sfali
+	def placeBet(self, roundObject, ammount): #DONE(test): ce ti dnara sfali
 		if(ammount <= 0):
 			return False
 		else:
 			if(self.money<=0 or ammount>self.money):
-				roundObject.pot += money
-				self.currentBet += money
+				roundObject.pot += self.money
+				self.currentBet += self.money
 				self.allIn=True
-				self.allInDifference=(ammount-money)
+				self.allInDifference=(ammount-self.money)
 				self.money=0
 			else:
 				self.money -= (ammount - self.currentBet)
 				roundObject.pot += (ammount - self.currentBet)
 				self.currentBet = ammount
-			return True
+			return self.currentBet#True
 
 	def returnMoney(self, ammount):	#return money in case of pot splitting; the minimum all in bet is used for mainPot, the second min bet is used for side pot, the 'overbet' of the other players is returned
 		self.money+=ammount

@@ -146,7 +146,7 @@ def getLobbyData(lobbies, lobbyId): #TODO
 def startGame(lobbies, lobbyId):
 	#game init
 	from game import Game
-	gameObj = Game(lobbies[lobbyId], 5, 1000);
+	gameObj = Game(lobbies[lobbyId], 5, 1000, 10);
 	endGameUsers = gameObj.startGame()
 	print("GAME OVER")
 	finishGame(lobbies, lobbyId, endGameUsers)
