@@ -471,7 +471,10 @@ class Round:
 		
 		for player in gameObject.players:
 			data['data']['playerSid'].append(player.id)
-			data['data']['playerHands'].append(player.hand)
+			convertedHand = player.hand
+			convertedHand[0] = gameObject.convertNotation(Card.get_rank_int(convertedHand[0]), Card.get_suit_int(convertedHand[0]))
+			convertedHand[1] = gameObject.convertNotation(Card.get_rank_int(convertedHand[1]), Card.get_suit_int(convertedHand[1]))
+			data['data']['playerHands'].append(convertedHand)
 			data['data']['currentCash'].append(player.money)
 		print(data)
 		comms.broadcastToPlayers(gameObject.players, data);

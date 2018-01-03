@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <map>
+ #include <unistd.h>
 
 #include "pokerWindow.h"
 #include "loginPage.h"
@@ -61,11 +62,13 @@ void pokerWindow::initUI()
 	lobbiesPage* lobbies = new lobbiesPage();
 	lobbies->server = server;
 	lobbies->userId = userId;
+	lobbies->userName = userName;
 	lobbies->server1 = server1;
 	lobbies->stack = stack;
 	connect(lobbies, &lobbiesPage::navigateTo, this, &pokerWindow::navigationRequestReceived);
 
 	playPage* play = new playPage();
+	play->server = server1;
 
 	indexPage* index = new indexPage();
 	index->userName = userName;
@@ -74,8 +77,9 @@ void pokerWindow::initUI()
 	index->server = server;
 	index->stack = stack;
 
-	lobbyPage* lobby = new lobbyPage();
+	lobby = new lobbyPage();
 	lobby->server = server1;
+	lobby->stack = stack;
 
 	
 	stack->addWidget(login);
@@ -86,6 +90,7 @@ void pokerWindow::initUI()
 	stack->addWidget(index);
 	stack->addWidget(lobby);
 
+	// stack->setCurrentIndex(4);
 
 
 	QVBoxLayout *vbox = new QVBoxLayout();
@@ -125,6 +130,12 @@ void pokerWindow::nekaj()
 
 void pokerWindow::closeEvent(QCloseEvent *event)
 {
+	if (lobby->active)
+	{
+		lobby->leaveLobby();
+		// usleep(100000);
+	}
+
 	if (email[0] != '\0' && userName[0] != '\0' && userId[0] != '\0')
 	{
 		QJsonObject object = server->logout(QString(userId));

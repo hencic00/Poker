@@ -54,7 +54,6 @@ void serverHandler::sendCreateLobbyMessage(QString userId, QString name)
 void serverHandler::sendGetLobbiesMessage(QString userId)
 {
 	QString request = "{\"agenda\":\"getLobbies\", \"userId\":\"" + userId + "\"}";
-	std::cout << request.toStdString() << std::endl;
 
 	int length = request.length();
 	int length1 = 0;
@@ -71,7 +70,86 @@ void serverHandler::sendGetLobbiesMessage(QString userId)
 void serverHandler::sendJoinLobbyMessage(QString userId, QString lobbyId)
 {
 	QString request = "{\"agenda\":\"joinLobby\", \"userId\":\"" + userId + "\", \"lobbyId\":\"" + lobbyId + "\"}";
-	std::cout << request.toStdString() << std::endl;
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+}
+
+void serverHandler::sendLeaveLobbyMessage()
+{
+	QString request = "{\"agenda\":\"leaveLobby\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+}
+
+void serverHandler::sendReadyMessage()
+{
+	QString request = "{\"agenda\":\"ready\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+}
+
+void serverHandler::sendFoldMessage()
+{
+	QString request = "{\"agenda\":\"fold\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+}
+
+void serverHandler::sendRaiseMessage(int ammount)
+{
+	QString request = "{\"agenda\":\"raise\", \"data\": \"" + QString::number(ammount) + "\"}";
+
+	int length = request.length();
+	int length1 = 0;
+
+	length1 |= ((length >> 3 * 8) & 0x000000ff);
+	length1 |= ((length >> 1 * 8) & 0x0000ff00);
+	length1 |= ((length << 1 * 8) & 0x00ff0000);
+	length1 |= ((length << 3 * 8) & 0xff000000);
+
+	send(sock , (char*) &length1 , 4 , 0 );
+	send(sock , request.toStdString().c_str(), length , 0 );
+}
+
+void serverHandler::sendCheckMessage()
+{
+	QString request = "{\"agenda\":\"check\"}";
 
 	int length = request.length();
 	int length1 = 0;
@@ -101,8 +179,6 @@ QJsonObject serverHandler::receviceMessage()
 
 
 	recv(sock, responseMsg, responseLength1, 0);
-
-	// std::cout << responseMsg << std::endl;
 
 	QJsonParseError err;
 	QJsonDocument doc = QJsonDocument::fromJson(responseMsg, &err);

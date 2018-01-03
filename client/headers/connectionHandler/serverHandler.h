@@ -35,6 +35,11 @@ class serverHandler
 		void sendGetLobbiesMessage(QString userId);
 		void sendCreateLobbyMessage(QString userId, QString name);
 		void sendJoinLobbyMessage(QString userId, QString lobbyId);
+		void sendReadyMessage();
+		void sendFoldMessage();
+		void sendLeaveLobbyMessage();
+		void sendRaiseMessage(int ammount);
+		void sendCheckMessage();
 
 
 

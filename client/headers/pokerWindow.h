@@ -12,6 +12,8 @@
 #include "connectionHandler/serverHandler.h"
 #include "userData.h"
 
+#include "lobbyPage.h"
+
 class pokerWindow : public QFrame
 {
 	Q_OBJECT  
@@ -27,6 +29,7 @@ class pokerWindow : public QFrame
 
 		QStackedWidget* stack;
 		QTimer *timer;
+		lobbyPage* lobby;
 
 		connectionHandler* server;
 		serverHandler* server1;

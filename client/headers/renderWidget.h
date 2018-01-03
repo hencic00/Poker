@@ -11,16 +11,24 @@ class renderWidget : public QFrame
 	Q_OBJECT
 
 	public:
-		renderWidget();
+		renderWidget(int nm);
 		~renderWidget();
 
 		QString nekaj;
-		QString* tableCards;
+		QString tableCards[5];
+		QString playerCard[5][2];
+		QString userNames[10];
+		QString playerSid[10];
+		double userMoney[10];
+		QString bet[10];
+		double bet1[10];
+		double maxBet;
+		int nmOfPlayers;
+		QString message;
 
 	private:
 		int w;
 		int h;
-
 
 
 		void paintEvent(QPaintEvent *e);

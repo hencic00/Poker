@@ -95,13 +95,15 @@ void lobbiesPage::refreshLobies()
 	QJsonValue data = response.value("data");
     QJsonArray lobbArray = data.toArray();
 
+    lobbiesList->clear();
+
     foreach (const QJsonValue & lobby, lobbArray)
     {
 		QJsonObject obj = lobby.toObject();
 
 		QFont font;
 		font.setPixelSize(40);
-		myListItem *item = new myListItem();
+		myListItem1 *item = new myListItem1();
 		item->setText(obj["name"].toString());
 		item->lobbyId = obj["id"].toString();
 		item->setFont(font);
@@ -112,7 +114,7 @@ void lobbiesPage::refreshLobies()
 
 void lobbiesPage::refresehButtonClicked()
 {
-	emit navigateTo("Playing", 4);
+	refreshLobies();
 }
 
 void lobbiesPage::createButtonClicked()
@@ -134,9 +136,9 @@ void lobbiesPage::createButtonClicked()
 
 
 		stack->setCurrentIndex(6);
-		((lobbyPage*)stack->widget(6))->mySid = user.value("userSid").toInt();
-		((lobbyPage*)stack->widget(6))->myUsername = user.value("username").toString();
-		((lobbyPage*)stack->widget(6))->lobbyName = name;
+		((lobbyPage*)stack->widget(6))->myUsername = QString::fromStdString(std::string(userName));
+		((lobbyPage*)stack->widget(6))->lobbyName = data.value("name").toString();
+		((lobbyPage*)stack->widget(6))->reponseUsers = usersArray;
 		((lobbyPage*)stack->widget(6))->stackFocus();
 	}
 }
@@ -144,6 +146,16 @@ void lobbiesPage::createButtonClicked()
 void lobbiesPage::joinButtonClicked()
 {
 	server1->createSocket();
-	server1->sendJoinLobbyMessage(userId, ((myListItem*) (lobbiesList->selectedItems()[0]))->lobbyId);
-	server1->receviceMessage();
+	server1->sendJoinLobbyMessage(userId, ((myListItem1*) (lobbiesList->selectedItems()[0]))->lobbyId);
+	QJsonObject response = server1->receviceMessage();
+	QJsonObject data = response.value("data").toObject();
+	QJsonValue users = data.value("users");
+	QJsonArray usersArray = users.toArray();
+
+
+	stack->setCurrentIndex(6);
+	((lobbyPage*)stack->widget(6))->myUsername = QString::fromStdString(std::string(userName));
+	((lobbyPage*)stack->widget(6))->lobbyName = data.value("name").toString();
+	((lobbyPage*)stack->widget(6))->reponseUsers = usersArray;
+	((lobbyPage*)stack->widget(6))->stackFocus();
 }

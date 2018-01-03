@@ -8,9 +8,9 @@
 #include "connectionHandler/connectionHandler.h"
 #include "connectionHandler/serverHandler.h"
 
-#ifndef MYLISTITEM
-#define MYLISTITEM
-class myListItem : public QListWidgetItem
+#ifndef MYLISTITEM1
+#define MYLISTITEM1
+class myListItem1 : public QListWidgetItem
 {
 	public:
 		QString lobbyId;
@@ -31,6 +31,7 @@ class lobbiesPage : public QFrame
 		connectionHandler* server;
 		serverHandler* server1;
 		char* userId;
+		char* userName;
 
 		QListWidget *lobbiesList;
 		QLineEdit* lobbyName;
