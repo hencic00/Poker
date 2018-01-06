@@ -1,0 +1,9 @@
+Moje opravljene naloge v tednu 9
+-Odprava napak pri robnem primeru, kadar igralec stavi več kot ima denarja(2,5h)
+	--debugging implementiranih sprememb
+	--testiranje delovanja igre z implentiranimi spremembami
+-ločitev razredov v game.py v ločene .py datoteke(1,5h)
+	--dodajanje ustreznih importov in preverjanje delovanja po ločitvi
+
+Moje naloge za naslednji teden
+-polish kode po potrebi
