@@ -94,8 +94,7 @@ class Game:
 	def removePlayersWithNoMoney(self):
 		for x in range(len(self.players)-1, -1, -1):
 			if(self.players[x].money<=0):
-				self.removePlayerFromGame(self, x)
-
+				self.removePlayerFromGame(x)
 
 	def removePlayerFromGame(self, playerIndex):
 		#close the socket conn
@@ -183,7 +182,8 @@ class Round:
 					self.playerStatus[currentPI]=True
 					self.resetPlayerStatusAfterRaise(currentPI)
 
-					self.currentMinBet+=inputRaise
+					#self.currentMinBet+=inputRaise
+					self.currentMinBet=betPlaced
 
 					print("RAISE: {}".format(inputRaise))
 					data = {}
@@ -275,7 +275,8 @@ class Round:
 					self.playerStatus[currentPI]=True
 					self.resetPlayerStatusAfterRaise(currentPI)
 
-					self.currentMinBet+=inputRaise
+					#self.currentMinBet+=inputRaise
+					self.currentMinBet=betPlaced
 
 					print("RAISE: {}".format(inputRaise))
 					#notify everyone player raised
@@ -512,6 +513,7 @@ class Round:
 		print("MAIN POT: "+ str(self.pot)+ " SIDE POT: "+ str(self.sidePot))
 		playerCount = len(self.roundPlayers)
 		if(playerCount <= 1): #check if there are more than 1 players in round
+			print("ENDING GAME - NOT ENOUGH PLAYERS LEFT")
 			return False #DONE implementiraj ce ni nobenega ker so leavali
 		
 		#deal initial hands
@@ -617,8 +619,7 @@ class Round:
 		for card in cards:
 			data['data'].append(gameObject.convertNotation(Card.get_rank_int(card), Card.get_suit_int(card)))
 		comms.broadcastToPlayers(gameObject.players, data);
-
-				   
+		   
 class Player:
 	def __init__(self, moneyInit, user):
 		#self.id = idInit
@@ -642,6 +643,7 @@ class Player:
 			return False
 		else:
 			if(self.money<=0 or ammount>self.money):
+				print("The ammount you wish to bet is larger than what you have-going all in!")
 				roundObject.pot += self.money
 				self.currentBet += self.money
 				self.allIn=True
@@ -655,15 +657,6 @@ class Player:
 
 	def returnMoney(self, ammount):	#return money in case of pot splitting; the minimum all in bet is used for mainPot, the second min bet is used for side pot, the 'overbet' of the other players is returned
 		self.money+=ammount
-# def main():
-#     gameInstance = Game(2)
-#     gameInstance.addPlayer(Player(1000, 0))
-#     gameInstance.addPlayer(Player(1000, 1))
-#     gameInstance.addPlayer(Player(1000, 2))
-#     gameInstance.startNewRound()
-#     variable=0
-
-# if __name__=='__main__': main()
 
 #Deuces card representation
 #{'2': 0, '3': 1, '4': 2, '5': 3, '6': 4, '7': 5, '8': 6, '9': 7, 'A': 12, 'J': 9, 'K': 11, 'Q': 10, 'T': 8}
