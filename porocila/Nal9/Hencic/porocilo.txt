@@ -1,0 +1,12 @@
+Moje opravljene naloge v tednu 9
+-Ustvarjanje igranja igre(6h)
+	--Miza se prialogodi številu igralcev(2h)
+	--Perspektiva igranja je vedno s sredine mize(1h)
+	--Prikaz stav(0.5h)
+	--Prikaz trenutnega denarja(1h)
+	--Prikaz kdo je zmagal rundo(0.5h)
+	--Postopno prikazovnje kart na mizi(1h)
+-Namestitev strežniškega programa na oddaljenem računalniku(2h)
+
+Moje naloge za naslednji teden
+--Predvajanje tvočnih postentkov za različne poteze
