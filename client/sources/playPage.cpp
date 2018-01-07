@@ -7,7 +7,6 @@
 #include <map>
 #include <QTextStream>
 #include <QThread>
-
 #include <iostream>
 
 
@@ -129,6 +128,12 @@ void playPage::initUI()
 	render->bet1[1] = 0;
 	render->bet1[2] = 0;
 	render->bet1[3] = 0;
+
+
+	render->boxColor[0] = "#FFFFFF";
+	render->boxColor[1] = "#FFFFFF";
+	render->boxColor[2] = "#FFFFFF";
+	render->boxColor[3] = "#FFFFFF";
 
 	render->maxBet = 0;
 
@@ -266,6 +271,10 @@ void playPage::stackFocus()
 	Task *task1 = new Task(server, this);
 	task1->moveToThread(thread1);
 	connect(thread1, SIGNAL (started()), task1, SLOT (doWork1()));
+
+
+
+
 	thread1->start();
 }
 
@@ -276,6 +285,7 @@ void playPage::checkButtonClicked()
 	checkButton->setEnabled(false);
 	foldButton->setEnabled(false);
 	bettAmmoutScroll->setEnabled(false);
+	render->boxColor[0] = "#FFFFFF";
 }
 
 
@@ -286,6 +296,7 @@ void playPage::foldButtonClicked()
 	checkButton->setEnabled(false);
 	foldButton->setEnabled(false);
 	bettAmmoutScroll->setEnabled(false);
+	render->boxColor[0] = "#FFFFFF";
 }
 
 void playPage::betAmmountSlider(int value)
@@ -303,5 +314,9 @@ void playPage::betAmmountSlider(int value)
 	}
 	// std::cout << bet << std::endl;
 	bettAmmout->setText(QString::number(bet));
+	render->boxColor[0] = "#FFFFFF";
 }
+
+
+
 

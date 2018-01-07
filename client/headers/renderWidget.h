@@ -25,6 +25,7 @@ class renderWidget : public QFrame
 		double maxBet;
 		int nmOfPlayers;
 		QString message;
+		QString boxColor[10];
 
 	private:
 		int w;

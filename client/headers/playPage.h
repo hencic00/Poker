@@ -31,6 +31,7 @@ class playPage : public QFrame
 		int prevBet;
 		int bigBlind;
 		int minBet;
+		void flashBox(int i);
 
 	private:
 		void initUI();

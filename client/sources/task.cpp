@@ -4,6 +4,7 @@
 #include <QJsonValue>
 #include <QJsonArray>
 #include <QThread>
+#include <QTimer>
 
 #include <iostream>
 
@@ -25,6 +26,7 @@ Task::Task(serverHandler* s, playPage* papa):QObject()
 	server = s;
 	foter1 = papa;
 	// card.insert(c.begin(), c.end());
+
 }
 
 Task::~Task()
@@ -132,10 +134,14 @@ void Task::doWork()
 	this->thread()->quit();
 }
 
+
+
 void Task::doWork1()
 {
 	bool nekaj = false;
 	int cardReveal = 0;
+	bool nekaj1 = false;
+	bool nekaj2 = false;
 
 	while(true)
 	{	
@@ -156,6 +162,13 @@ void Task::doWork1()
 			foter1->render->tableCards[2] = foter1->card["cardBack"];
 			foter1->render->tableCards[3] = foter1->card["cardBack"];
 			foter1->render->tableCards[4] = foter1->card["cardBack"];
+
+			for (int i = 1; i < foter1->render->nmOfPlayers; ++i)
+			{
+				
+				foter1->render->playerCard[i][0] = foter1->card["cardBack"];
+				foter1->render->playerCard[i][1] = foter1->card["cardBack"];
+			}
 
 			// std::cout << "nekaj" << std::endl;
 		}
@@ -208,6 +221,16 @@ void Task::doWork1()
 			}
 			foter1->foldButton->setEnabled(true);
 			foter1->bettAmmoutScroll->setEnabled(true);
+
+			// foter1->render->boxColor[0] = "#C3A1A1";
+
+			// if (nekaj2)
+			// {
+			// 	foter1->repaint();
+			// }
+
+			// nekaj2 = true;
+			// nekaj1 = true;
 		}
 		else if (response.value("agenda").toString() == "playerFold")
 		{
@@ -236,6 +259,7 @@ void Task::doWork1()
 
 			QJsonArray players = data.value("playerSid").toArray();
 			QJsonArray currentCash = data.value("currentCash").toArray();
+			QJsonArray playerHands = data.value("playerHands").toArray();
 			for (int i = 0; i < foter1->render->nmOfPlayers; ++i)
 			{
 				for (int j = 0; j < foter1->render->nmOfPlayers; ++j)
@@ -243,6 +267,15 @@ void Task::doWork1()
 					if (QString::number(players.at(i).toInt()) == foter1->render->playerSid[j])
 					{
 						foter1->render->userMoney[j] = currentCash.at(i).toInt();
+
+						QJsonArray hand = playerHands.at(i).toArray();
+					
+
+						std::string card0 = hand.at(0).toString().toStdString();
+						std::string card1 = hand.at(1).toString().toStdString();
+
+						foter1->render->playerCard[j][0] = foter1->card[card0];
+						foter1->render->playerCard[j][1] = foter1->card[card1];
 					}
 				}
 			}
@@ -330,5 +363,33 @@ void Task::doWork1()
 
 			foter1->repaint();
 		}
+		else if (response.value("agenda").toString() == "playersTurn")
+		{
+			int sid = response.value("data").toInt();
+
+			// for (int i = 0; i < foter1->render->nmOfPlayers; ++i)
+			// {
+			// 	if (foter1->render->playerSid[i] == QString::number(sid))
+			// 	{
+			// 		foter1->render->boxColor[i] = "#C3A1A1";
+			// 	}
+			// 	else 
+			// 	{
+			// 		foter1->render->boxColor[i] = "#FFFFFF";
+			// 	}
+			// }
+			// if (nekaj1)
+			// {
+			// 	foter1->repaint();
+			// 	std::cout << "nekaj" << std::endl;
+			// }
+
+			
+		}
 	}
+}
+
+void Task::updateBox()
+{
+	std::cout << "nekaj" << std::endl;
 }

@@ -89,10 +89,13 @@ void renderWidget::paintEvent(QPaintEvent *e)
 
 	 	font.setBold(true);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(userNames[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), userNames[0]);
+	 	qp.setBrush(QBrush(QColor(boxColor[0])));
+	 	qp.drawRect(-fm.width(userNames[0]) * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35 - fm.height()/1.5, fm.width(userNames[0])*1.28, fm.height()*2);
+	 	qp.setBrush(QBrush("#000000"));
+		qp.drawText(QPoint(-fm.width(userNames[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.4), userNames[0]);
 		font.setBold(false);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(QString::number(userMoney[0])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[0]) + " $");
+		qp.drawText(QPoint(-fm.width(QString::number(userMoney[0])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.75), QString::number(userMoney[0]) + "$");
 		qp.drawText(QPoint(-fm.width(bet[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), bet[0]);
 
 		qp.translate(tableCard3.defaultSize().rwidth()*(-0.8) * faktor, -tableCard3.defaultSize().rheight()*faktor*4.6);
@@ -106,10 +109,13 @@ void renderWidget::paintEvent(QPaintEvent *e)
 
 	 	font.setBold(true);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm1.width(userNames[1]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.55), userNames[1]);
+	 	qp.setBrush(QBrush(QColor(boxColor[1])));
+	 	qp.drawRect(-fm.width(userNames[1]) * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.67 - fm.height()/1.5, fm.width(userNames[1])*1.28, fm.height()*2);
+	 	qp.setBrush(QBrush("#000000"));
+		qp.drawText(QPoint(-fm1.width(userNames[1]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.62), userNames[1]);
 		font.setBold(false);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm1.width(QString::number(userMoney[1])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), QString::number(userMoney[1]) + " $");
+		qp.drawText(QPoint(-fm1.width(QString::number(userMoney[1])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.27), QString::number(userMoney[1]) + "$");
 		qp.drawText(QPoint(-fm1.width(bet[1]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), bet[1]);
 
 	}
@@ -162,10 +168,20 @@ void renderWidget::paintEvent(QPaintEvent *e)
 
 	 	font.setBold(true);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(userNames[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), userNames[0]);
+	 	qp.setBrush(QBrush(QColor(boxColor[0])));
+	 	if (fm.width(userNames[0]) > fm.width(QString::number(userMoney[0]) + "$"))
+	 	{
+		 	qp.drawRect(-fm.width(userNames[0]) * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35 - fm.height()/1.5, fm.width(userNames[0])*1.28, fm.height()*2);
+	 	}
+	 	else
+	 	{
+	 		qp.drawRect(-fm.width(QString::number(userMoney[0]) + "$") * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35 - fm.height()/1.5, fm.width(QString::number(userMoney[0]) + "$")*1.37, fm.height()*2);
+	 	}
+		qp.setBrush(QBrush("#000000"));
+		qp.drawText(QPoint(-fm.width(userNames[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.4), userNames[0]);
 		font.setBold(false);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(QString::number(userMoney[0])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[0]) + " $");
+		qp.drawText(QPoint(-fm.width(QString::number(userMoney[0])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.75), QString::number(userMoney[0]) + "$");
 		qp.drawText(QPoint(-fm.width(bet[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), bet[0]);
 
 		qp.translate(tableCard3.defaultSize().rwidth()*(-7.3) * faktor, -tableCard3.defaultSize().rheight()*faktor*3.5);
@@ -179,14 +195,24 @@ void renderWidget::paintEvent(QPaintEvent *e)
 
 	 	font.setBold(true);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm1.width(userNames[1]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.55), userNames[1]);
+	 	qp.setBrush(QBrush(QColor(boxColor[1])));
+	 	if (fm.width(userNames[1]) > fm.width(QString::number(userMoney[1]) + "$"))
+	 	{
+		 	qp.drawRect(-fm.width(userNames[1]) * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.65 - fm.height()/1.5, fm.width(userNames[1])*1.28, fm.height()*2);
+	 	}
+	 	else
+	 	{
+	 		qp.drawRect(-fm.width(QString::number(userMoney[1]) + "$") * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.65 - fm.height()/1.5, fm.width(QString::number(userMoney[1]) + "$")*1.37, fm.height()*2);
+	 	}
+		qp.setBrush(QBrush("#000000"));
+		qp.drawText(QPoint(-fm1.width(userNames[1]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.6), userNames[1]);
 		font.setBold(false);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm1.width(QString::number(userMoney[1])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), QString::number(userMoney[1]) + " $");
+		qp.drawText(QPoint(-fm1.width(QString::number(userMoney[1])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.26), QString::number(userMoney[1]) + "$");
 		qp.drawText(QPoint(faktor * 105, tableCard3.defaultSize().rheight() * faktor * 0.67), bet[1]);
 
 
-		qp.translate(tableCard3.defaultSize().rwidth()*(12.3) * faktor, 0);
+		qp.translate(tableCard3.defaultSize().rwidth()*(12.3) * faktor, tableCard3.defaultSize().rheight()*faktor*0.05);
 		qp.rotate(-8);
 		playerCard20.render(&qp, rect6);
 		qp.rotate(8);
@@ -197,10 +223,20 @@ void renderWidget::paintEvent(QPaintEvent *e)
 
 	 	font.setBold(true);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm2.width(userNames[2]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.55), userNames[2]);
+	 	qp.setBrush(QBrush(QColor(boxColor[2])));
+	 	if (fm.width(userNames[2]) > fm.width(QString::number(userMoney[2]) + "$"))
+	 	{
+		 	qp.drawRect(-fm.width(userNames[2]) * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.65 - fm.height()/1.5, fm.width(userNames[2])*1.28, fm.height()*2);
+	 	}
+	 	else
+	 	{
+	 		qp.drawRect(-fm.width(QString::number(userMoney[2]) + "$") * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.65 - fm.height()/1.5, fm.width(QString::number(userMoney[2]) + "$")*1.37, fm.height()*2);
+	 	}
+	 	qp.setBrush(QBrush("#000000"));
+		qp.drawText(QPoint(-fm2.width(userNames[2]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.6), userNames[2]);
 		font.setBold(false);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm2.width(QString::number(userMoney[2])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), QString::number(userMoney[2]) + " $");
+		qp.drawText(QPoint(-fm2.width(QString::number(userMoney[2])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.26), QString::number(userMoney[2]) + "$");
 		qp.drawText(QPoint(-fm.width(bet[2]) * faktor * 0.65 - faktor * 77, tableCard3.defaultSize().rheight() * faktor * 0.67), bet[2]);
 	}
 	else if(nmOfPlayers == 4)
@@ -252,12 +288,23 @@ void renderWidget::paintEvent(QPaintEvent *e)
 	 	qp.setFont(font);
 	 	QFontMetrics fm(font);
 
+	 	qp.setBrush(QBrush(QColor(boxColor[0])));
+	 	if (fm.width(userNames[0]) > fm.width(QString::number(userMoney[0]) + "$"))
+	 	{
+		 	qp.drawRect(-fm.width(userNames[0]) * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35 - fm.height()/1.5, fm.width(userNames[0])*1.28, fm.height()*2);
+	 	}
+	 	else
+	 	{
+	 		qp.drawRect(-fm.width(QString::number(userMoney[0]) + "$") * faktor * 0.39 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35 - fm.height()/1.5, fm.width(QString::number(userMoney[0]) + "$")*1.37, fm.height()*2);
+	 	}
+		qp.setBrush(QBrush("#000000"));
+
 	 	qp.drawText(QPoint(-fm.width(message) * faktor * 0.325 + faktor * 12, -tableCard3.defaultSize().rheight() * faktor * 2.4), message);
 
 		qp.drawText(QPoint(-fm.width(userNames[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), userNames[0]);
 		font.setBold(false);
 	 	qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(QString::number(userMoney[0])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[0]) + " $");
+		qp.drawText(QPoint(-fm.width(QString::number(userMoney[0])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[0]) + "$");
 
 		qp.drawText(QPoint(-fm.width(bet[0]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), bet[0]);
 
@@ -273,7 +320,7 @@ void renderWidget::paintEvent(QPaintEvent *e)
 		qp.drawText(QPoint(-fm.width(userNames[1]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), userNames[1]);
 		font.setBold(false);
 		qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(QString::number(userMoney[1])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[1]) + " $");
+		qp.drawText(QPoint(-fm.width(QString::number(userMoney[1])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[1]) + "$");
 		qp.drawText(QPoint(faktor * 105, tableCard3.defaultSize().rheight() * faktor * 0.67), bet[1]);
 
 		qp.translate(tableCard3.defaultSize().rwidth() * 6.2 * faktor, -tableCard3.defaultSize().rheight()*faktor*2.3);
@@ -288,7 +335,7 @@ void renderWidget::paintEvent(QPaintEvent *e)
 		qp.drawText(QPoint(-fm.width(userNames[2]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.55), userNames[2]);
 		font.setBold(false);
 		qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(QString::number(userMoney[2])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), QString::number(userMoney[2]) + " $");
+		qp.drawText(QPoint(-fm.width(QString::number(userMoney[2])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * -0.2), QString::number(userMoney[2]) + "$");
 
 		qp.drawText(QPoint(-fm.width(bet[2]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), bet[2]);
 
@@ -304,7 +351,7 @@ void renderWidget::paintEvent(QPaintEvent *e)
 		qp.drawText(QPoint(-fm.width(userNames[3]) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.35), userNames[3]);
 		font.setBold(false);
 		qp.setFont(font);
-		qp.drawText(QPoint(-fm.width(QString::number(userMoney[3])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[3]) + " $");
+		qp.drawText(QPoint(-fm.width(QString::number(userMoney[3])) * faktor * 0.325 + faktor * 12, tableCard3.defaultSize().rheight() * faktor * 1.7), QString::number(userMoney[3]) + "$");
 
 		qp.drawText(QPoint(-fm.width(bet[3]) * faktor * 0.65 - faktor * 77, tableCard3.defaultSize().rheight() * faktor * 0.67), bet[3]);
 	}

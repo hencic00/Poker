@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QStackedWidget>
 #include <QPushButton>
+#include <QTimer>
 
 #include "connectionHandler/serverHandler.h"
 #include "playPage.h"
@@ -31,6 +32,7 @@ class Task : public QObject
 	public slots:
 		void doWork();
 		void doWork1();
+		void updateBox();
 	signals:
 		void workFinished();
 };
