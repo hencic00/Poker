@@ -37,5 +37,8 @@ def broadcastToPlayers(players, data):
 	for player in players:
 		send(player.socket, data)
 
-def broadcastToEveryoneExcept(players, data):
-	pass
+def broadcastToEveryoneExcept(players, player, data):
+	#deep copy
+	playersWithout = list(players)
+	playersWithout.remove(player)
+	broadcastToPlayers(playersWithout, data)

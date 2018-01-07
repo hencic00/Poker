@@ -48,15 +48,20 @@ class Round:
 				print("Current min. bet: " + str(self.currentMinBet) + "\r\nCurrent pot: " + str(self.pot))
 				if(self.checkArray(self.playerStatus)):
 					break
-				print(" Player "+str(currentPI))
+				print(" Player "+str(currentPI))	
+
+				#tell everyone else its his turn
+				data = {}
+				data['agenda'] = "playersTurn"
+				data['data'] = gameObject.players[currentPI].id
+				comms.broadcastToEveryoneExcept(gameObject.players, gameObject.players[currentPI], data)
 
 				data = {}
 				data['agenda'] = "yourTurn"
-				
 				print("Sending yourTurn to {}".format(gameObject.players[currentPI].id))
 				comms.send(gameObject.players[currentPI].socket, data)
-
 				rec = comms.receive(gameObject.players[currentPI].socket)
+				
 				action = rec['agenda']
 				if(action=="check"):
 					self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)
@@ -145,12 +150,18 @@ class Round:
 					break
 				print(" Player "+str(currentPI))
 
+				#tell everyone else its his turn
+				data = {}
+				data['agenda'] = "playersTurn"
+				data['data'] = gameObject.players[currentPI].id
+				comms.broadcastToEveryoneExcept(gameObject.players, gameObject.players[currentPI], data)
+
 				data = {}
 				data['agenda'] = "yourTurn"
-
+				print("Sending yourTurn to {}".format(gameObject.players[currentPI].id))
 				comms.send(gameObject.players[currentPI].socket, data)
-
 				rec = comms.receive(gameObject.players[currentPI].socket)
+
 				action = rec['agenda']
 				if(action=="check"):
 					betPlaced=self.roundPlayers[currentPI].placeBet(self, self.currentMinBet)

@@ -1,0 +1,10 @@
+opravljeno ta teden:
+- vzdrževanje kode (0.5h)
+- stabilnost strežnika: lobby & server (1.5h)
+	-- obravnavanje napak v povezavi
+	-- igralec "lepo" zapusti lobby ob errorju
+- debuganje z front (1h)
+- testiranje & popravljanje (start game obvestila, leave lobby sequence) (2h)
+
+naslednji teden:
+- generator poročil
